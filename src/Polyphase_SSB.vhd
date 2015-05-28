@@ -50,11 +50,10 @@ begin
 	end generate ; -- ComplexMultipliergen
 
 	--an instance of DDS for each of the 4 samples 
-	DDS_phoff_array(0) <=  phoff; --std_logic_vector(shift_right(signed(phoff),2)); 
-	DDS_phoff_array(1) <=  std_logic_vector(signed(phoff) + shift_right(signed(phinc),4)); --std_logic_vector(shift_right(signed(phoff),1)); 
-	DDS_phoff_array(2) <=  std_logic_vector(signed(phoff) + shift_right(signed(phinc),3)); --std_logic_vector(shift_right(signed(phoff),1) + shift_right(signed(phoff),2));
+	DDS_phoff_array(0) <=  phoff; 
+	DDS_phoff_array(1) <=  std_logic_vector(signed(phoff) + shift_right(signed(phinc),4)); 
+	DDS_phoff_array(2) <=  std_logic_vector(signed(phoff) + shift_right(signed(phinc),3)); 
 	DDS_phoff_array(3) <=  std_logic_vector(signed(phoff) + shift_right(signed(phinc),4) + shift_right(signed(phinc),3)); 
-	--increment phase is 4*input increment phase (in fast clock units)
 	DDS_phinc <= std_logic_vector(shift_right(signed(phinc),2)); 
 
 	DDSgen : for ct in 0 to 3 generate

@@ -18,14 +18,14 @@ signal wfm_in_re : std_logic_vector(63 downto 0) := (others => '0');
 signal wfm_in_im : std_logic_vector(63 downto 0) := (others => '0');
 signal phinc: std_logic_vector(23 downto 0) := (others => '0');
 signal phoff: std_logic_vector(23 downto 0) := (others => '0');
-signal wfm_check_re : std_logic_vector(15 downto 0) := (others => '0');
-signal wfm_check_im : std_logic_vector(15 downto 0) := (others => '0');
+signal wfm_check_re, wfm_checkf_re : std_logic_vector(15 downto 0) := (others => '0');
+signal wfm_check_im, wfm_checkf_im : std_logic_vector(15 downto 0) := (others => '0');
 
 signal wfm_out_re, wfm_out_im : std_logic_vector(63 downto 0);
 
 signal wfm_oserdes : std_logic_vector(15 downto 0);
 
-signal temp_realA, temp_realB :  real;
+signal temp_realA, temp_realB, tempf_realA, tempf_realB : real;
 
 --define different stages for testbench, corresponding to different SSB parameters
 type TESTBENCH_STATE_t  is (RESETTING, BASEBAND_RAMP_RE, BASEBAND_PH_SHIFT, SSB_ON, SSB_PH_SHIFT, DONE);
@@ -90,7 +90,7 @@ begin
   phoff <= (others => '0');
   --turn on SSB mod., 10 MHZ frequency (2^23, 1/10 clock)
   --the default width for DDS phases (16 bit) does not give enough accuracy (phase error accumulates) 
-  phinc <= std_logic_vector(to_unsigned(1677722, 24)); 
+  phinc <= std_logic_vector(to_unsigned(6710888, 24)); 
   wait for 10000ns;
 
   testbench_state <= SSB_PH_SHIFT;
@@ -117,7 +117,7 @@ begin
     --ramp amplitude
     wfm_check_re <= std_logic_vector(to_signed(16*i, 16));
     --Arbitrarly allow 2 differences due to fixed point errors
-    assert abs(signed(wfm_check_re) - signed(wfm_out_re)) <= 2 report "SSB output incorrect!";    
+    assert abs(signed(wfm_check_re) - signed(wfm_out_re(15 downto 0))) <= 2 report "SSB output incorrect!";    
     wait until rising_edge(clock);
   end loop ;
 
@@ -133,12 +133,12 @@ begin
 
   while testbench_state /= SSB_PH_SHIFT loop
     ind := ind+1;
-    temp_realA <=  cos(MATH_PI*real(ind)/20.0);
-    temp_realB <=  sin(MATH_PI*real(ind)/20.0);
+    temp_realA <=  cos(MATH_PI*real(ind)/5.0);
+    temp_realB <=  sin(MATH_PI*real(ind)/5.0);
     wfm_check_re <= std_logic_vector(to_signed(integer(temp_realA*real(32752)),16));
     wfm_check_im <= std_logic_vector(to_signed(integer(temp_realB*real(32752)),16));
     --Arbitrarly allow 10 differences due to fixed point errors 
-    assert abs(signed(wfm_check_re) - signed(wfm_out_re)) <= 10 report "SSB output incorrect!";    
+    assert abs(signed(wfm_check_re) - signed(wfm_out_re(15 downto 0))) <= 15 report "SSB output incorrect!";    
     wait until rising_edge(clock);
   end loop;
 
@@ -150,12 +150,70 @@ begin
 
   while not finished loop
     ind := ind+1;
-    temp_realA <=  cos(MATH_PI*real(ind)/20.0 + MATH_PI/2.0);
-    temp_realB <=  sin(MATH_PI*real(ind)/20.0 + MATH_PI/2.0);
+    temp_realA <=  cos(MATH_PI*real(ind)/5.0 + MATH_PI/2.0);
+    temp_realB <=  sin(MATH_PI*real(ind)/5.0 + MATH_PI/2.0);
     wfm_check_re <= std_logic_vector(to_signed(integer(temp_realA*real(32752)),16));
     wfm_check_im <= std_logic_vector(to_signed(integer(temp_realB*real(32752)),16));
-    assert abs(signed(wfm_check_re) - signed(wfm_out_re)) <= 10 report "SSB rounding error";    
+    assert abs(signed(wfm_check_re) - signed(wfm_out_re(15 downto 0))) <= 15 report "SSB output incorrect";    
     wait until rising_edge(clock);
+  end loop;
+
+end process ; 
+
+
+checkf : process
+-- generate a (complex) signal to check wfm_out_xx against
+variable ind : integer range 0 to 1100 := 0;
+begin
+  --the while loop repeat until the condition is met for the first time (to sync. with wfm_out_xx). 
+  wait until testbench_state = BASEBAND_RAMP_RE;
+  --wait for multiplier pipeline delay
+  for ct in 0 to 7 loop
+    wait until rising_edge(clock_oserdes);
+  end loop ;
+  for i in -8192 to 8191 loop
+    --ramp amplitude
+    wfm_checkf_re <= std_logic_vector(to_signed(4*i, 16));
+    --Arbitrarly allow 2 differences due to fixed point errors
+    assert abs(signed(wfm_checkf_re) - signed(wfm_oserdes)) <= 2 report "SSB output wrong!";    
+    wait until clock_oserdes'event; --only ok in simulation
+  end loop ;
+
+  --shift phase by pi/2
+  wfm_checkf_im <= std_logic_vector(to_signed(32752, 16)); 
+  wfm_checkf_re <= (others => '0');
+
+  wait until testbench_state = SSB_ON; 
+  --wait until DDS is valid (10 cycles) and multiplier pipeline delay (3 cycles)
+  for ct in 0 to 27 loop
+    wait until rising_edge(clock_oserdes);
+  end loop ; 
+
+  while testbench_state /= SSB_PH_SHIFT loop
+    ind := ind+1;
+    tempf_realA <=  cos(MATH_PI*real(ind)/20.0);
+    tempf_realB <=  sin(MATH_PI*real(ind)/20.0);
+    wfm_checkf_re <= std_logic_vector(to_signed(integer(tempf_realA*real(32752)),16));
+    wfm_checkf_im <= std_logic_vector(to_signed(integer(tempf_realB*real(32752)),16));
+    --Arbitrarly allow 10 differences due to fixed point errors 
+    assert abs(signed(wfm_checkf_re) - signed(wfm_oserdes)) <= 15 report "SSB output wrong!";    
+    wait until clock_oserdes'event;
+  end loop;
+
+  ind := 0;
+  --wait until DDS is valid (9 cycles) and multiplier pipeline delay (3 cycles)
+  for ct in 0 to 26 loop
+    wait until rising_edge(clock_oserdes);
+  end loop ; 
+
+  while not finished loop
+    ind := ind+1;
+    tempf_realA <=  cos(MATH_PI*real(ind)/20.0 + MATH_PI/2.0);
+    tempf_realB <=  sin(MATH_PI*real(ind)/20.0 + MATH_PI/2.0);
+    wfm_checkf_re <= std_logic_vector(to_signed(integer(tempf_realA*real(32752)),16));
+    wfm_checkf_im <= std_logic_vector(to_signed(integer(tempf_realB*real(32752)),16));
+    assert abs(signed(wfm_checkf_re) - signed(wfm_oserdes)) <= 15 report "SSB output wrong";    
+    wait until clock_oserdes'event;
   end loop;
 
 end process ; 
