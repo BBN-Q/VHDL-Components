@@ -90,7 +90,7 @@ begin
   phoff <= (others => '0');
   --turn on SSB mod., 10 MHZ frequency (2^23, 1/10 clock)
   --the default width for DDS phases (16 bit) does not give enough accuracy (phase error accumulates) 
-  phinc <= std_logic_vector(to_unsigned(6710888, 24)); 
+  phinc <= std_logic_vector(to_unsigned(1677722, 24)); 
   wait for 10000ns;
 
   testbench_state <= SSB_PH_SHIFT;
