@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="Polyphase_SSB_tb_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="Polyphase_SSB_tb" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="20" />
+   <wvobject db_ref_id="1" fp_name="/Polyphase_SSB_tb/clock" type="logic">
+      <obj_property name="ElementShortName">clock</obj_property>
+      <obj_property name="ObjectShortName">clock</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/Polyphase_SSB_tb/reset" type="logic">
+      <obj_property name="ElementShortName">reset</obj_property>
+      <obj_property name="ObjectShortName">reset</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/Polyphase_SSB_tb/finished" type="other">
+      <obj_property name="ElementShortName">finished</obj_property>
+      <obj_property name="ObjectShortName">finished</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/Polyphase_SSB_tb/testbench_state" type="other">
+      <obj_property name="ElementShortName">testbench_state</obj_property>
+      <obj_property name="ObjectShortName">testbench_state</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/Polyphase_SSB_tb/wfm_in_re" type="array">
+      <obj_property name="ElementShortName">wfm_in_re[63:0]</obj_property>
+      <obj_property name="ObjectShortName">wfm_in_re[63:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/Polyphase_SSB_tb/wfm_in_im" type="array">
+      <obj_property name="ElementShortName">wfm_in_im[63:0]</obj_property>
+      <obj_property name="ObjectShortName">wfm_in_im[63:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/Polyphase_SSB_tb/phinc" type="array">
+      <obj_property name="ElementShortName">phinc[23:0]</obj_property>
+      <obj_property name="ObjectShortName">phinc[23:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/Polyphase_SSB_tb/uut/phinc" type="array">
+      <obj_property name="ElementShortName">phinc[23:0]</obj_property>
+      <obj_property name="ObjectShortName">phinc[23:0]</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/Polyphase_SSB_tb/phoff" type="array">
+      <obj_property name="ElementShortName">phoff[23:0]</obj_property>
+      <obj_property name="ObjectShortName">phoff[23:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/Polyphase_SSB_tb/uut/DDS_phoff" type="array">
+      <obj_property name="ElementShortName">DDS_phoff[23:0]</obj_property>
+      <obj_property name="ObjectShortName">DDS_phoff[23:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject fp_name="group60" type="group">
+      <obj_property name="label">DDS Signals</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+      <wvobject db_ref_id="1" fp_name="/Polyphase_SSB_tb/uut/DDS_cos_array[0]" type="array">
+         <obj_property name="ElementShortName">[0][15:0]</obj_property>
+         <obj_property name="ObjectShortName">DDS_cos_array[0][15:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject db_ref_id="1" fp_name="/Polyphase_SSB_tb/uut/DDS_sin_array[0]" type="array">
+         <obj_property name="ElementShortName">[0][15:0]</obj_property>
+         <obj_property name="ObjectShortName">DDS_sin_array[0][15:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group67" type="group">
+      <obj_property name="label">Complex Multiplier</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+      <wvobject db_ref_id="1" fp_name="/Polyphase_SSB_tb/uut/\DDSgen(0)\/myDDS/m_axis_data_tvalid" type="logic">
+         <obj_property name="ElementShortName">m_axis_data_tvalid</obj_property>
+         <obj_property name="ObjectShortName">m_axis_data_tvalid</obj_property>
+      </wvobject>
+      <wvobject db_ref_id="1" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(0)\/myComplexMultiplier/temp_mul1" type="array">
+         <obj_property name="ElementShortName">temp_mul1[31:0]</obj_property>
+         <obj_property name="ObjectShortName">temp_mul1[31:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject db_ref_id="1" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(0)\/myComplexMultiplier/temp_mul2" type="array">
+         <obj_property name="ElementShortName">temp_mul2[31:0]</obj_property>
+         <obj_property name="ObjectShortName">temp_mul2[31:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject db_ref_id="1" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(0)\/myComplexMultiplier/temp_mul3" type="array">
+         <obj_property name="ElementShortName">temp_mul3[31:0]</obj_property>
+         <obj_property name="ObjectShortName">temp_mul3[31:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject db_ref_id="1" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(0)\/myComplexMultiplier/temp_mul4" type="array">
+         <obj_property name="ElementShortName">temp_mul4[31:0]</obj_property>
+         <obj_property name="ObjectShortName">temp_mul4[31:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject db_ref_id="1" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(0)\/myComplexMultiplier/temp_add1" type="array">
+         <obj_property name="ElementShortName">temp_add1[31:0]</obj_property>
+         <obj_property name="ObjectShortName">temp_add1[31:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject db_ref_id="1" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(0)\/myComplexMultiplier/temp_add2" type="array">
+         <obj_property name="ElementShortName">temp_add2[31:0]</obj_property>
+         <obj_property name="ObjectShortName">temp_add2[31:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject db_ref_id="1" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(0)\/myComplexMultiplier/data_in_A_re" type="array">
+         <obj_property name="ElementShortName">data_in_A_re[15:0]</obj_property>
+         <obj_property name="ObjectShortName">data_in_A_re[15:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject db_ref_id="1" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(0)\/myComplexMultiplier/data_in_A_im" type="array">
+         <obj_property name="ElementShortName">data_in_A_im[15:0]</obj_property>
+         <obj_property name="ObjectShortName">data_in_A_im[15:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject db_ref_id="1" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(0)\/myComplexMultiplier/data_in_B_re" type="array">
+         <obj_property name="ElementShortName">data_in_B_re[15:0]</obj_property>
+         <obj_property name="ObjectShortName">data_in_B_re[15:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject db_ref_id="1" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(0)\/myComplexMultiplier/data_in_B_im" type="array">
+         <obj_property name="ElementShortName">data_in_B_im[15:0]</obj_property>
+         <obj_property name="ObjectShortName">data_in_B_im[15:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/Polyphase_SSB_tb/wfm_check_re" type="array">
+      <obj_property name="ElementShortName">wfm_check_re[15:0]</obj_property>
+      <obj_property name="ObjectShortName">wfm_check_re[15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="radix_realType">SIGNEDFIXEDPOINTRADIX</obj_property>
+      <obj_property name="radix_fractionWidth">15</obj_property>
+      <obj_property name="radix_otherWidth">0</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(0)\/myComplexMultiplier/data_out_re" type="array">
+      <obj_property name="ElementShortName">data_out_re[15:0]</obj_property>
+      <obj_property name="ObjectShortName">data_out_re[15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(1)\/myComplexMultiplier/data_out_re" type="array">
+      <obj_property name="ElementShortName">data_out_re[15:0]</obj_property>
+      <obj_property name="ObjectShortName">data_out_re[15:0]</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(2)\/myComplexMultiplier/data_out_re" type="array">
+      <obj_property name="ElementShortName">data_out_re[15:0]</obj_property>
+      <obj_property name="ObjectShortName">data_out_re[15:0]</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(3)\/myComplexMultiplier/data_out_re" type="array">
+      <obj_property name="ElementShortName">data_out_re[15:0]</obj_property>
+      <obj_property name="ObjectShortName">data_out_re[15:0]</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/Polyphase_SSB_tb/wfm_oserdes" type="array">
+      <obj_property name="ElementShortName">wfm_oserdes[15:0]</obj_property>
+      <obj_property name="ObjectShortName">wfm_oserdes[15:0]</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="AnalogYRangeType">ANALOG_YRANGETYPE_AUTO</obj_property>
+      <obj_property name="AnalogYRangeMin">0.000000</obj_property>
+      <obj_property name="AnalogYRRangeMax">0.000000</obj_property>
+      <obj_property name="AnalogInterpolation">ANALOG_INTERPOLATION_LINEAR</obj_property>
+      <obj_property name="AnalogOffscale">ANALOG_OFFSCALE_HIDE</obj_property>
+      <obj_property name="AnalogHorizLine">0.000000</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/Polyphase_SSB_tb/wfm_checkf_re" type="array">
+      <obj_property name="ElementShortName">wfm_checkf_re[15:0]</obj_property>
+      <obj_property name="ObjectShortName">wfm_checkf_re[15:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <obj_property name="radix_realType">SIGNEDFIXEDPOINTRADIX</obj_property>
+      <obj_property name="radix_fractionWidth">15</obj_property>
+      <obj_property name="radix_otherWidth">0</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+   </wvobject>
+   <wvobject db_ref_id="1" fp_name="/Polyphase_SSB_tb/clock_oserdes" type="logic">
+      <obj_property name="ElementShortName">clock_oserdes</obj_property>
+      <obj_property name="ObjectShortName">clock_oserdes</obj_property>
+   </wvobject>
+</wave_config>
