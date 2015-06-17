@@ -51,12 +51,6 @@
       <obj_property name="ObjectShortName">phoff[23:0]</obj_property>
       <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
    </wvobject>
-   <wvobject db_ref_id="1" type="array" fp_name="/Polyphase_SSB_tb/uut/DDS_phoff">
-      <obj_property name="ElementShortName">DDS_phoff[23:0]</obj_property>
-      <obj_property name="ObjectShortName">DDS_phoff[23:0]</obj_property>
-      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
-      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
-   </wvobject>
    <wvobject type="group" fp_name="group60">
       <obj_property name="label">DDS Signals</obj_property>
       <obj_property name="DisplayName">label</obj_property>
@@ -199,6 +193,10 @@
          <obj_property name="ElementShortName">SLICE_LOW</obj_property>
          <obj_property name="ObjectShortName">SLICE_LOW</obj_property>
       </wvobject>
+   </wvobject>
+   <wvobject db_ref_id="1" type="logic" fp_name="/Polyphase_SSB_tb/wfm_out_vld">
+      <obj_property name="ElementShortName">wfm_out_vld</obj_property>
+      <obj_property name="ObjectShortName">wfm_out_vld</obj_property>
    </wvobject>
    <wvobject db_ref_id="1" type="array" fp_name="/Polyphase_SSB_tb/wfm_out_re">
       <obj_property name="ElementShortName">wfm_out_re[63:0]</obj_property>

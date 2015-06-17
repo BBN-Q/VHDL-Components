@@ -8,7 +8,6 @@ end;
 
 architecture bench of Polyphase_SSB_tb is
 
-
 signal clock, clock_oserdes: std_logic := '0';
 signal reset: std_logic := '0';
 
@@ -18,9 +17,11 @@ signal wfm_in_re : std_logic_vector(63 downto 0) := (others => '0');
 signal wfm_in_im : std_logic_vector(63 downto 0) := (others => '0');
 signal phinc: std_logic_vector(23 downto 0) := (others => '0');
 signal phoff: std_logic_vector(23 downto 0) := (others => '0');
+signal wfm_out_re, wfm_out_im : std_logic_vector(63 downto 0);
+signal wfm_out_vld : std_logic := '0';
+
 signal wfm_check_re, wfm_check_im : std_logic_vector(15 downto 0) := (others => '0');
 
-signal wfm_out_re, wfm_out_im : std_logic_vector(63 downto 0);
 
 signal wfm_oserdes : std_logic_vector(15 downto 0);
 
@@ -36,12 +37,13 @@ uut: entity work.Polyphase_SSB
 port map (
   clock => clock,
   reset => reset,
-  waveform_in_re => wfm_in_re,
-  waveform_in_im => wfm_in_im,
   phinc => phinc,
   phoff => phoff,
+  waveform_in_re => wfm_in_re,
+  waveform_in_im => wfm_in_im,
   waveform_out_re => wfm_out_re,
-  waveform_out_im => wfm_out_im
+  waveform_out_im => wfm_out_im,
+  out_vld => wfm_out_vld
  );
 
 oserdes: entity work.FakeOSERDES
