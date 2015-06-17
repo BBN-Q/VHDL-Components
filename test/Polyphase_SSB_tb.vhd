@@ -1,3 +1,8 @@
+-- Testbench for the Polyphase_SSB module
+--
+-- Original authors Diego Riste and Colm Ryan
+-- Copyright 2015, Raytheon BBN Technologies
+
 library IEEE;
 use IEEE.Std_logic_1164.all;
 use IEEE.Numeric_Std.all;

@@ -1,3 +1,10 @@
+-- Modulates a complex 4 sample wide waveform stream for SSB modulation
+--
+-- Uses 16 DSP slices: 4 * (2 per ComplexMultiplier and 2 per DDS)
+--
+-- Original authors Diego Riste and Colm Ryan
+-- Copyright 2015, Raytheon BBN Technologies
+
 library IEEE;
 use IEEE.Std_logic_1164.all;
 use IEEE.Numeric_Std.all;

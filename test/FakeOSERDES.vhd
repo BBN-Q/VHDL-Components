@@ -1,3 +1,8 @@
+-- Fake testing module that mocks a 4:1 DDR OSERDES module
+--
+-- Original authors Diego Riste and Colm Ryan
+-- Copyright 2015, Raytheon BBN Technologies
+
 library IEEE;
 use IEEE.Std_logic_1164.all;
 use IEEE.Numeric_Std.all;
@@ -20,7 +25,7 @@ end entity ; -- FakeOSERDES
 
 architecture arch of FakeOSERDES is
 
-constant CLK_OUT_PERIOD : time := FPGA_CLK_PERIOD/2; 
+constant CLK_OUT_PERIOD : time := FPGA_CLK_PERIOD/2;
 
 
 begin
@@ -41,9 +46,9 @@ begin
 			for ct in 0 to 3 loop
 				data_out <= registered_data((ct+1)*OUTPUT_SAMPLE_WIDTH-1 downto ct*OUTPUT_SAMPLE_WIDTH);
 				wait for CLK_OUT_PERIOD/2;
-			end loop ; -- 
+			end loop ; --
 		end if;
-	end loop ; -- 
+	end loop ; --
 end process; -- serialize
 
 end architecture ; -- arch
