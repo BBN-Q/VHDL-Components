@@ -5,6 +5,10 @@ use IEEE.Numeric_Std.all;
 use IEEE.std_logic_misc.and_reduce; --just use and in VHDL-2008
 
 entity Polyphase_SSB is
+	generic (
+		IN_DATA_WIDTH : natural := 16;
+		OUT_DATA_WIDTH : natural := 16
+	);
 	port (
 		clock : in std_logic;
 		reset : in std_logic;
@@ -12,11 +16,11 @@ entity Polyphase_SSB is
 		phinc : in std_logic_vector(23 downto 0); --unsigned 24-bit integer (portion of circle)
   	phoff : in std_logic_vector(23 downto 0); --unsigned 24-bit integer (portion of circle)
 
-		waveform_in_re : in std_logic_vector(63 downto 0);
-		waveform_in_im : in std_logic_vector(63 downto 0);
+		waveform_in_re : in std_logic_vector(4*IN_DATA_WIDTH-1 downto 0);
+		waveform_in_im : in std_logic_vector(4*IN_DATA_WIDTH-1 downto 0);
 
-  	waveform_out_re : out std_logic_vector(63 downto 0);
-		waveform_out_im : out std_logic_vector(63 downto 0);
+  	waveform_out_re : out std_logic_vector(4*OUT_DATA_WIDTH-1 downto 0);
+		waveform_out_im : out std_logic_vector(4*OUT_DATA_WIDTH-1 downto 0);
 		out_vld         : out std_logic
 	) ;
 end entity ; -- Polyphase_SSB
@@ -28,31 +32,26 @@ signal prod_vld : std_logic_vector(3 downto 0) := (others => '0');
 
 type DDS_sincos_t is array(0 to 3) of std_logic_vector(15 downto 0);
 type DDS_phoff_t is array(0 to 3) of std_logic_vector(23 downto 0);
-type data_out_t is array(0 to 3) of std_logic_vector(15 downto 0);
 
 signal DDS_cos_array, DDS_sin_array : DDS_sincos_t := (others => (others => '0'));
 signal DDS_phoff_array : DDS_phoff_t := (others => (others => '0'));
 
-signal data_out_re, data_out_im : data_out_t := (others => (others => '0'));
 
 begin
-
-	waveform_out_re <= data_out_re(3) & data_out_re(2) & data_out_re(1) & data_out_re(0);
-	waveform_out_im <= data_out_im(3) & data_out_im(2) & data_out_im(1) & data_out_im(0);
 
 	ComplexMultipliergen : for ct in 0 to 3 generate
 		myComplexMultiplier : entity work.ComplexMultiplier
 			generic map (
-				A_WIDTH => 16,
+				A_WIDTH => IN_DATA_WIDTH,
 				B_WIDTH => 16,
-				PROD_WIDTH => 16,
+				PROD_WIDTH => OUT_DATA_WIDTH,
 				BIT_SHIFT => 2
 			)
 			port map (
 				clk => clock,
 				rst => reset,
-				a_data_re => waveform_in_re((ct+1)*16-1 downto ct*16),
-				a_data_im => waveform_in_im((ct+1)*16-1 downto ct*16),
+				a_data_re => waveform_in_re((ct+1)*IN_DATA_WIDTH-1 downto ct*IN_DATA_WIDTH),
+				a_data_im => waveform_in_im((ct+1)*IN_DATA_WIDTH-1 downto ct*IN_DATA_WIDTH),
 				a_vld => '1',
 				a_last => '0',
 
@@ -61,8 +60,8 @@ begin
 				b_vld => DDS_vld(ct),
 				b_last => '0',
 
-				prod_data_re => data_out_re(ct),
-				prod_data_im => data_out_im(ct),
+				prod_data_re => waveform_out_re((ct+1)*OUT_DATA_WIDTH-1 downto ct*OUT_DATA_WIDTH),
+				prod_data_im => waveform_out_im((ct+1)*OUT_DATA_WIDTH-1 downto ct*OUT_DATA_WIDTH),
 				prod_vld => prod_vld(ct)
 				);
 	end generate ; -- ComplexMultipliergen

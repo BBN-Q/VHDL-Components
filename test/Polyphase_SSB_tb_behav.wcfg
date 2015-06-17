@@ -28,13 +28,13 @@
       <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
    </wvobject>
    <wvobject db_ref_id="1" type="array" fp_name="/Polyphase_SSB_tb/wfm_in_re">
-      <obj_property name="ElementShortName">wfm_in_re[63:0]</obj_property>
-      <obj_property name="ObjectShortName">wfm_in_re[63:0]</obj_property>
+      <obj_property name="ElementShortName">wfm_in_re[55:0]</obj_property>
+      <obj_property name="ObjectShortName">wfm_in_re[55:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
    <wvobject db_ref_id="1" type="array" fp_name="/Polyphase_SSB_tb/wfm_in_im">
-      <obj_property name="ElementShortName">wfm_in_im[63:0]</obj_property>
-      <obj_property name="ObjectShortName">wfm_in_im[63:0]</obj_property>
+      <obj_property name="ElementShortName">wfm_in_im[55:0]</obj_property>
+      <obj_property name="ObjectShortName">wfm_in_im[55:0]</obj_property>
       <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
    </wvobject>
    <wvobject db_ref_id="1" type="array" fp_name="/Polyphase_SSB_tb/phinc">
@@ -78,12 +78,14 @@
          <obj_property name="ObjectShortName">rst</obj_property>
       </wvobject>
       <wvobject db_ref_id="1" type="array" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(0)\/myComplexMultiplier/a_data_re">
-         <obj_property name="ElementShortName">a_data_re[15:0]</obj_property>
-         <obj_property name="ObjectShortName">a_data_re[15:0]</obj_property>
+         <obj_property name="ElementShortName">a_data_re[13:0]</obj_property>
+         <obj_property name="ObjectShortName">a_data_re[13:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject db_ref_id="1" type="array" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(0)\/myComplexMultiplier/a_data_im">
-         <obj_property name="ElementShortName">a_data_im[15:0]</obj_property>
-         <obj_property name="ObjectShortName">a_data_im[15:0]</obj_property>
+         <obj_property name="ElementShortName">a_data_im[13:0]</obj_property>
+         <obj_property name="ObjectShortName">a_data_im[13:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject db_ref_id="1" type="logic" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(0)\/myComplexMultiplier/a_vld">
          <obj_property name="ElementShortName">a_vld</obj_property>
@@ -96,10 +98,12 @@
       <wvobject db_ref_id="1" type="array" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(0)\/myComplexMultiplier/b_data_re">
          <obj_property name="ElementShortName">b_data_re[15:0]</obj_property>
          <obj_property name="ObjectShortName">b_data_re[15:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject db_ref_id="1" type="array" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(0)\/myComplexMultiplier/b_data_im">
          <obj_property name="ElementShortName">b_data_im[15:0]</obj_property>
          <obj_property name="ObjectShortName">b_data_im[15:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject db_ref_id="1" type="logic" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(0)\/myComplexMultiplier/b_vld">
          <obj_property name="ElementShortName">b_vld</obj_property>
@@ -112,10 +116,12 @@
       <wvobject db_ref_id="1" type="array" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(0)\/myComplexMultiplier/prod_data_re">
          <obj_property name="ElementShortName">prod_data_re[15:0]</obj_property>
          <obj_property name="ObjectShortName">prod_data_re[15:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject db_ref_id="1" type="array" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(0)\/myComplexMultiplier/prod_data_im">
          <obj_property name="ElementShortName">prod_data_im[15:0]</obj_property>
          <obj_property name="ObjectShortName">prod_data_im[15:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject db_ref_id="1" type="logic" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(0)\/myComplexMultiplier/prod_vld">
          <obj_property name="ElementShortName">prod_vld</obj_property>
@@ -126,12 +132,12 @@
          <obj_property name="ObjectShortName">prod_last</obj_property>
       </wvobject>
       <wvobject db_ref_id="1" type="array" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(0)\/myComplexMultiplier/a_reg_re">
-         <obj_property name="ElementShortName">a_reg_re[15:0]</obj_property>
-         <obj_property name="ObjectShortName">a_reg_re[15:0]</obj_property>
+         <obj_property name="ElementShortName">a_reg_re[13:0]</obj_property>
+         <obj_property name="ObjectShortName">a_reg_re[13:0]</obj_property>
       </wvobject>
       <wvobject db_ref_id="1" type="array" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(0)\/myComplexMultiplier/a_reg_im">
-         <obj_property name="ElementShortName">a_reg_im[15:0]</obj_property>
-         <obj_property name="ObjectShortName">a_reg_im[15:0]</obj_property>
+         <obj_property name="ElementShortName">a_reg_im[13:0]</obj_property>
+         <obj_property name="ObjectShortName">a_reg_im[13:0]</obj_property>
       </wvobject>
       <wvobject db_ref_id="1" type="array" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(0)\/myComplexMultiplier/b_reg_re">
          <obj_property name="ElementShortName">b_reg_re[15:0]</obj_property>
@@ -142,28 +148,28 @@
          <obj_property name="ObjectShortName">b_reg_im[15:0]</obj_property>
       </wvobject>
       <wvobject db_ref_id="1" type="array" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(0)\/myComplexMultiplier/prod1">
-         <obj_property name="ElementShortName">prod1[31:0]</obj_property>
-         <obj_property name="ObjectShortName">prod1[31:0]</obj_property>
+         <obj_property name="ElementShortName">prod1[29:0]</obj_property>
+         <obj_property name="ObjectShortName">prod1[29:0]</obj_property>
       </wvobject>
       <wvobject db_ref_id="1" type="array" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(0)\/myComplexMultiplier/prod2">
-         <obj_property name="ElementShortName">prod2[31:0]</obj_property>
-         <obj_property name="ObjectShortName">prod2[31:0]</obj_property>
+         <obj_property name="ElementShortName">prod2[29:0]</obj_property>
+         <obj_property name="ObjectShortName">prod2[29:0]</obj_property>
       </wvobject>
       <wvobject db_ref_id="1" type="array" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(0)\/myComplexMultiplier/prod3">
-         <obj_property name="ElementShortName">prod3[31:0]</obj_property>
-         <obj_property name="ObjectShortName">prod3[31:0]</obj_property>
+         <obj_property name="ElementShortName">prod3[29:0]</obj_property>
+         <obj_property name="ObjectShortName">prod3[29:0]</obj_property>
       </wvobject>
       <wvobject db_ref_id="1" type="array" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(0)\/myComplexMultiplier/prod4">
-         <obj_property name="ElementShortName">prod4[31:0]</obj_property>
-         <obj_property name="ObjectShortName">prod4[31:0]</obj_property>
+         <obj_property name="ElementShortName">prod4[29:0]</obj_property>
+         <obj_property name="ObjectShortName">prod4[29:0]</obj_property>
       </wvobject>
       <wvobject db_ref_id="1" type="array" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(0)\/myComplexMultiplier/sum_re">
-         <obj_property name="ElementShortName">sum_re[32:0]</obj_property>
-         <obj_property name="ObjectShortName">sum_re[32:0]</obj_property>
+         <obj_property name="ElementShortName">sum_re[30:0]</obj_property>
+         <obj_property name="ObjectShortName">sum_re[30:0]</obj_property>
       </wvobject>
       <wvobject db_ref_id="1" type="array" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(0)\/myComplexMultiplier/sum_im">
-         <obj_property name="ElementShortName">sum_im[32:0]</obj_property>
-         <obj_property name="ObjectShortName">sum_im[32:0]</obj_property>
+         <obj_property name="ElementShortName">sum_im[30:0]</obj_property>
+         <obj_property name="ObjectShortName">sum_im[30:0]</obj_property>
       </wvobject>
       <wvobject db_ref_id="1" type="other" fp_name="/Polyphase_SSB_tb/uut/\ComplexMultipliergen(0)\/myComplexMultiplier/A_WIDTH">
          <obj_property name="ElementShortName">A_WIDTH</obj_property>
