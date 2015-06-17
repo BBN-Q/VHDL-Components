@@ -59,7 +59,7 @@ uut: entity work.Polyphase_SSB
 
 oserdes: entity work.FakeOSERDES
   generic map (
-    OUTPUT_SAMPLE_WIDTH => 16,
+    SAMPLE_WIDTH => OUT_DATA_WIDTH,
     FPGA_CLK_PERIOD => CLOCK_PERIOD
   )
   port map (
