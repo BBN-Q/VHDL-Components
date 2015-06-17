@@ -82,7 +82,7 @@ begin
 	DDS_phoff_array(3) <=  std_logic_vector(signed(phoff) + shift_right(signed(phinc),1) + shift_right(signed(phinc),2));
 
 	DDSgen : for ct in 0 to 3 generate
-		myDDS : entity work.DDS
+		myDDS : entity work.DDS_SSB
 		port map (
 			aclk => clock,
 			aresetn => "not"(reset),
