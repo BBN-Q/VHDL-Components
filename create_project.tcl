@@ -10,14 +10,15 @@
 
 ############################################################
 
-set SCRIPT_PATH [file normalize [info script]]
-set REPO_PATH [file dirname $SCRIPT_PATH]
+set REPO_PATH [file dirname [file normalize [info script]]]
 
 create_project -force $PROJECT_NAME $PROJECT_DIR/$PROJECT_NAME -part xc7a200tfbg676-2
 set_property target_language VHDL [current_project]
 
-# add VHDL and NGC sources
+# add VHDL sources
 add_files -norecurse $REPO_PATH/ $REPO_PATH/src
+add_files $REPO_PATH/deps/VHDL-Components/src/ComplexMultiplier.vhd
+add_files $REPO_PATH/deps/VHDL-Components/src/DelayLine.vhd
 
 #testbenches
 add_files -norecurse -fileset sim_1 $REPO_PATH/test
@@ -27,12 +28,12 @@ add_files -fileset constrs_1 -norecurse $REPO_PATH/constraints
 set_property target_constrs_file $REPO_PATH/constraints/timing.xdc [current_fileset -constrset]
 
 # ip cores
-#First the regular ones
 set ip_srcs [glob $REPO_PATH/ip/*.xci]
 import_ip $ip_srcs
 
+set_property top Polyphase_SSB [current_fileset]
 update_compile_order -fileset sources_1
-update_compile_order -fileset sim_1
 
-#Get headerless bit file output
-set_property STEPS.WRITE_BITSTREAM.ARGS.BIN_FILE true [get_runs impl_1]
+set_property top Polyphase_SSB_tb [get_filesets sim_1]
+set_property top_lib xil_defaultlib [get_filesets sim_1]
+update_compile_order -fileset sim_1
