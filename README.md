@@ -14,3 +14,6 @@ Variable-width up and down counters with load and enable.  Implemented with a mu
 
 ## ComplexMultipler
 Fully pipelined complex AXI stream multiplier with generic widths
+
+## PolyphaseSSB
+Apply single-sideband modulation to a 4-sample-wide complex data stream. 

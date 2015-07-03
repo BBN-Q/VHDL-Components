@@ -11,7 +11,7 @@ use IEEE.Numeric_Std.all;
 
 use IEEE.std_logic_misc.and_reduce; --just use and in VHDL-2008
 
-entity Polyphase_SSB is
+entity PolyphaseSSB is
 	generic (
 		IN_DATA_WIDTH : natural := 16;
 		OUT_DATA_WIDTH : natural := 16
@@ -30,9 +30,9 @@ entity Polyphase_SSB is
 		waveform_out_im : out std_logic_vector(4*OUT_DATA_WIDTH-1 downto 0);
 		out_vld         : out std_logic
 	) ;
-end entity ; -- Polyphase_SSB
+end entity ; -- PolyphaseSSB
 
-architecture arch of Polyphase_SSB is
+architecture arch of PolyphaseSSB is
 
 signal DDS_vld : std_logic_vector(3 downto 0) := (others => '0');
 signal prod_vld : std_logic_vector(3 downto 0) := (others => '0');

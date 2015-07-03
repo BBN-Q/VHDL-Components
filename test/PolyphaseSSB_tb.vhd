@@ -8,10 +8,10 @@ use IEEE.Std_logic_1164.all;
 use IEEE.Numeric_Std.all;
 use IEEE.Math_Real.all;
 
-entity Polyphase_SSB_tb is
+entity PolyphaseSSB_tb is
 end;
 
-architecture bench of Polyphase_SSB_tb is
+architecture bench of PolyphaseSSB_tb is
 
 signal clock, clock_oserdes: std_logic := '0';
 signal reset: std_logic := '0';
@@ -40,7 +40,7 @@ signal testbench_state : TESTBENCH_STATE_t;
 
 begin
 
-uut: entity work.Polyphase_SSB
+uut: entity work.PolyphaseSSB
   generic map (
     IN_DATA_WIDTH => IN_DATA_WIDTH,
     OUT_DATA_WIDTH => OUT_DATA_WIDTH
