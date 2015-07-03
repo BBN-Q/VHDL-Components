@@ -1,3 +1,0 @@
-[submodule "deps/VHDL-Components"]
-	path = deps/VHDL-Components
-	url = git@github.com:BBN-Q/VHDL-Components.git
