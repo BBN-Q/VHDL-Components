@@ -83,7 +83,7 @@ architecture RTL of synchronizer is
 
   -- Added by CAR 12 October 2014
   -- According to UG912 v2013.4 pg 35 this attribute should apply to all registers
-  -- in the synchornizing chain
+  -- in the synchronizing chain
   attribute ASYNC_REG of s_data_guard_r : signal is "TRUE";
 
 begin
@@ -113,41 +113,3 @@ begin
   o_data <= s_data_guard_r(s_data_guard_r'high);
 
 end RTL;
-
--- Redeclare libaries because library declarations only apply to the next design unit
--- see http://stackoverflow.com/questions/19815066/vhdl-can-you-declare-a-package-and-an-entity-in-the-same-file/19858069#19858069
-library ieee;
-use ieee.std_logic_1164.all;
-
-entity reg_synchronizer is
-  generic (
-    REG_WIDTH : natural := 32;
-    G_INIT_VALUE : std_logic := '0'; -- initial value of all flip-flops in the module
-    G_NUM_GUARD_FFS : positive := 1); -- number of guard flip-flops after the synchronizing flip-flop
-  port (
-    reset  : in std_logic; -- active high
-    clk    : in std_logic;
-    i_data : in std_logic_vector( REG_WIDTH - 1 downto 0);
-    o_data : out std_logic_vector( REG_WIDTH - 1 downto 0)
-  );
-end reg_synchronizer;
-
-architecture behavior of reg_synchronizer is
-
-begin
-
-  GEN_REG: for I in 0 to REG_WIDTH - 1 generate
-      synchx : entity work.synchronizer
-    generic map (
-       G_INIT_VALUE => G_INIT_VALUE, 
-       G_NUM_GUARD_FFS => G_NUM_GUARD_FFS
-    )
-    port map (
-      reset => reset,
-      clk => clk,
-      i_data => i_data(I),
-      o_data => o_data(I)
-    );
-  end generate GEN_REG;
-
-end behavior;
