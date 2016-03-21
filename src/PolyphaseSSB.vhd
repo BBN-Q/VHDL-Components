@@ -5,11 +5,11 @@
 -- Original authors Diego Riste and Colm Ryan
 -- Copyright 2015, Raytheon BBN Technologies
 
-library IEEE;
-use IEEE.Std_logic_1164.all;
-use IEEE.Numeric_Std.all;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
-use IEEE.std_logic_misc.and_reduce; --just use and in VHDL-2008
+use ieee.std_logic_misc.and_reduce; --just use and in vhdl-2008
 
 entity PolyphaseSSB is
 	generic (
@@ -21,12 +21,12 @@ entity PolyphaseSSB is
 		reset : in std_logic;
 
 		phinc : in std_logic_vector(23 downto 0); --unsigned 24-bit integer (portion of circle)
-  	phoff : in std_logic_vector(23 downto 0); --unsigned 24-bit integer (portion of circle)
+		phoff : in std_logic_vector(23 downto 0); --unsigned 24-bit integer (portion of circle)
 
 		waveform_in_re : in std_logic_vector(4*IN_DATA_WIDTH-1 downto 0);
 		waveform_in_im : in std_logic_vector(4*IN_DATA_WIDTH-1 downto 0);
 
-  	waveform_out_re : out std_logic_vector(4*OUT_DATA_WIDTH-1 downto 0);
+		waveform_out_re : out std_logic_vector(4*OUT_DATA_WIDTH-1 downto 0);
 		waveform_out_im : out std_logic_vector(4*OUT_DATA_WIDTH-1 downto 0);
 		out_vld         : out std_logic
 	) ;
@@ -42,7 +42,6 @@ type DDS_phoff_t is array(0 to 3) of std_logic_vector(23 downto 0);
 
 signal DDS_cos_array, DDS_sin_array : DDS_sincos_t := (others => (others => '0'));
 signal DDS_phoff_array : DDS_phoff_t := (others => (others => '0'));
-
 
 begin
 
