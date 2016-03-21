@@ -76,10 +76,15 @@ begin
 	out_vld <= and_reduce(prod_vld); -- just and in VHDL-2008
 
 	--an instance of DDS for each of the 4 samples
-	DDS_phoff_array(0) <=  phoff;
-	DDS_phoff_array(1) <=  std_logic_vector(signed(phoff) + shift_right(signed(phinc),2));
-	DDS_phoff_array(2) <=  std_logic_vector(signed(phoff) + shift_right(signed(phinc),1));
-	DDS_phoff_array(3) <=  std_logic_vector(signed(phoff) + shift_right(signed(phinc),1) + shift_right(signed(phinc),2));
+	phaseOffsetPro : process(clock)
+	begin
+		if rising_edge(clock) then
+			DDS_phoff_array(0) <=  phoff;
+			DDS_phoff_array(1) <=  std_logic_vector(signed(phoff) + shift_right(signed(phinc),2));
+			DDS_phoff_array(2) <=  std_logic_vector(signed(phoff) + shift_right(signed(phinc),1));
+			DDS_phoff_array(3) <=  std_logic_vector(signed(phoff) + shift_right(signed(phinc),1) + shift_right(signed(phinc),2));
+		end if;
+	end process;
 
 	DDSgen : for ct in 0 to 3 generate
 		myDDS : entity work.DDS_SSB
