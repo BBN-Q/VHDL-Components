@@ -21,7 +21,7 @@ entity PolyphaseSSB is
 		rst : in std_logic;
 
 		phase_increment : in std_logic_vector(23 downto 0); --unsigned 24-bit integer (portion of circle)
-		phase_offset : in std_logic_vector(23 downto 0); --unsigned 24-bit integer (portion of circle)
+		phase_offset    : in std_logic_vector(23 downto 0); --unsigned 24-bit integer (portion of circle)
 
 		waveform_in_re : in std_logic_vector(4*IN_DATA_WIDTH-1 downto 0);
 		waveform_in_im : in std_logic_vector(4*IN_DATA_WIDTH-1 downto 0);

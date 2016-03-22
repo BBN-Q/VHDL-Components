@@ -16,27 +16,30 @@ architecture bench of PolyphaseSSB_tb is
 signal clk, clk_oserdes: std_logic := '0';
 signal reset: std_logic := '0';
 
-constant clk_PERIOD   : time := 10ns;
-constant IN_DATA_WIDTH  : natural := 14;
-constant OUT_DATA_WIDTH : natural := 16;
-signal finished         : boolean := false;
-signal wfm_in_re        : std_logic_vector(4*IN_DATA_WIDTH-1 downto 0) := (others => '0');
-signal wfm_in_im        : std_logic_vector(4*IN_DATA_WIDTH-1 downto 0) := (others => '0');
-signal phinc            : std_logic_vector(23 downto 0) := (others => '0');
-signal phoff            : std_logic_vector(23 downto 0) := (others => '0');
-signal wfm_out_re       : std_logic_vector(4*OUT_DATA_WIDTH-1 downto 0);
-signal wfm_out_im       : std_logic_vector(4*OUT_DATA_WIDTH-1 downto 0);
-signal wfm_out_vld      : std_logic := '0';
+constant CLK_PERIOD         : time := 4ns;
+constant CLK_OSERDES_PERIOD : time := 2ns;
+constant IN_DATA_WIDTH      : natural := 14;
+constant OUT_DATA_WIDTH     : natural := 16;
+
+signal wfm_in_re   : std_logic_vector(4*IN_DATA_WIDTH-1 downto 0) := (others => '0');
+signal wfm_in_im   : std_logic_vector(4*IN_DATA_WIDTH-1 downto 0) := (others => '0');
+signal phinc       : std_logic_vector(23 downto 0) := (others => '0');
+signal phoff       : std_logic_vector(23 downto 0) := (others => '0');
+signal wfm_out_re  : std_logic_vector(4*OUT_DATA_WIDTH-1 downto 0);
+signal wfm_out_im  : std_logic_vector(4*OUT_DATA_WIDTH-1 downto 0);
+signal wfm_out_vld : std_logic := '0';
 
 signal wfm_check_re, wfm_check_im : std_logic_vector(15 downto 0) := (others => '0');
 
-signal wfm_oserdes : std_logic_vector(15 downto 0);
+signal wfm_oserdes_re, wfm_oserdes_im : std_logic_vector(15 downto 0);
 
 signal temp_realA, temp_realB, tempf_realA, tempf_realB : real;
 
 --define different stages for testbench, corresponding to different SSB parameters
 type TESTBENCH_STATE_t	is (RESETTING, BASEBAND_RAMP_RE, BASEBAND_PH_SHIFT, SSB_ON, SSB_PH_SHIFT, DONE);
 signal testbench_state : TESTBENCH_STATE_t;
+
+signal stop_the_clocks : boolean := false;
 
 begin
 
@@ -57,20 +60,33 @@ uut: entity work.PolyphaseSSB
 		out_vld         => wfm_out_vld
 	 );
 
-oserdes: entity work.FakeOSERDES
+oserdes_re: entity work.FakeOSERDES
 	generic map (
 		SAMPLE_WIDTH => OUT_DATA_WIDTH,
-		FPGA_CLK_PERIOD => clk_PERIOD
+		CLK_PERIOD => CLK_OSERDES_PERIOD
 	)
 	port map (
-		clk_in   => clk,
+		clk_in   => clk_oserdes,
 		reset    => reset,
 		data_in  => wfm_out_re,
-		data_out => wfm_oserdes,
-		clk_out  => clk_oserdes
+		data_out => wfm_oserdes_re
 	);
 
-clk <= not clk after clk_PERIOD/2 when not finished;
+oserdes_im: entity work.FakeOSERDES
+generic map (
+	SAMPLE_WIDTH => OUT_DATA_WIDTH,
+	CLK_PERIOD => CLK_OSERDES_PERIOD
+)
+port map (
+	clk_in   => clk_oserdes,
+	reset    => reset,
+	data_in  => wfm_out_im,
+	data_out => wfm_oserdes_im
+);
+
+
+clk <= not clk after CLK_PERIOD/2 when not stop_the_clocks;
+clk_oserdes <= not clk_oserdes after CLK_OSERDES_PERIOD/2 when not stop_the_clocks;
 
 stimulus: process
 begin
@@ -117,7 +133,7 @@ begin
 	wait for 10000ns;
 
 	testbench_state <= DONE;
-	finished <= true;
+	stop_the_clocks <= true;
 	wait;
 end process;
 
@@ -136,7 +152,7 @@ begin
 		--ramp amplitude
 		wfm_check_re <= std_logic_vector(to_signed(4*i, OUT_DATA_WIDTH));
 		--Arbitrarly allow 2 differences due to fixed point errors
-		assert abs(signed(wfm_check_re) - signed(wfm_oserdes)) <= 2 report "SSB output wrong in BASEBAND_RAMP_RE!";
+		assert abs(signed(wfm_check_re) - signed(wfm_oserdes_re)) <= 2 report "SSB output wrong in BASEBAND_RAMP_RE!";
 		wait until clk_oserdes'event; --only ok in simulation
 	end loop ;
 
@@ -157,7 +173,7 @@ begin
 		wfm_check_re <= std_logic_vector(to_signed(integer(tempf_realA*real(32752)), OUT_DATA_WIDTH));
 		wfm_check_im <= std_logic_vector(to_signed(integer(tempf_realB*real(32752)), OUT_DATA_WIDTH));
 		--Arbitrarly allow 15 differences due to fixed point errors
-		assert abs(signed(wfm_check_re) - signed(wfm_oserdes)) <= 15 report "SSB output wrong in SSB_ON!";
+		assert abs(signed(wfm_check_re) - signed(wfm_oserdes_re)) <= 15 report "SSB output wrong in SSB_ON!";
 		wait until clk_oserdes'event;
 	end loop;
 
@@ -167,13 +183,13 @@ begin
 		wait until rising_edge(clk_oserdes);
 	end loop ;
 
-	while not finished loop
+	while not stop_the_clocks loop
 		ind := ind+1;
 		tempf_realA  <= cos(MATH_PI*real(ind)/20.0 + MATH_PI/2.0);
 		tempf_realB  <= sin(MATH_PI*real(ind)/20.0 + MATH_PI/2.0);
 		wfm_check_re <= std_logic_vector(to_signed(integer(tempf_realA*real(32752)), OUT_DATA_WIDTH));
 		wfm_check_im <= std_logic_vector(to_signed(integer(tempf_realB*real(32752)), OUT_DATA_WIDTH));
-		assert abs(signed(wfm_check_re) - signed(wfm_oserdes)) <= 15 report "SSB output wrong in SSB_PH_SHIFT";
+		assert abs(signed(wfm_check_re) - signed(wfm_oserdes_re)) <= 15 report "SSB output wrong in SSB_PH_SHIFT";
 		wait until clk_oserdes'event;
 	end loop;
 
