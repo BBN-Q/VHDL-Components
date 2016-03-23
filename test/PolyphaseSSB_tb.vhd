@@ -19,7 +19,8 @@ signal reset: std_logic := '0';
 constant CLK_PERIOD         : time := 4ns;
 constant CLK_OSERDES_PERIOD : time := 2ns;
 constant IN_DATA_WIDTH      : natural := 14;
-constant OUT_DATA_WIDTH     : natural := 16;
+constant OUT_DATA_WIDTH     : natural := 14;
+constant OUT_DATA_SCALE     : integer := 2**(OUT_DATA_WIDTH-1)-1;
 
 signal wfm_in_re   : std_logic_vector(4*IN_DATA_WIDTH-1 downto 0) := (others => '0');
 signal wfm_in_im   : std_logic_vector(4*IN_DATA_WIDTH-1 downto 0) := (others => '0');
@@ -29,7 +30,7 @@ signal wfm_out_re  : std_logic_vector(4*OUT_DATA_WIDTH-1 downto 0);
 signal wfm_out_im  : std_logic_vector(4*OUT_DATA_WIDTH-1 downto 0);
 signal wfm_out_vld : std_logic := '0';
 
-signal wfm_oserdes_re, wfm_oserdes_im : std_logic_vector(15 downto 0);
+signal wfm_oserdes_re, wfm_oserdes_im : std_logic_vector(OUT_DATA_WIDTH-1 downto 0);
 
 
 --define different stages for testbench, corresponding to different SSB parameters
@@ -110,10 +111,10 @@ begin
 
 	testbench_state <= BASEBAND_PH_SHIFT;
 	--set amp. to ~max
-	wfm_in_re <= std_logic_vector(to_signed(8191, IN_DATA_WIDTH))
-								& std_logic_vector(to_signed(8191, IN_DATA_WIDTH))
-								& std_logic_vector(to_signed(8191, IN_DATA_WIDTH))
-								& std_logic_vector(to_signed(8191, IN_DATA_WIDTH));
+	wfm_in_re <= std_logic_vector(to_signed(2**(IN_DATA_WIDTH-1)-1, IN_DATA_WIDTH))
+								& std_logic_vector(to_signed(2**(IN_DATA_WIDTH-1)-1, IN_DATA_WIDTH))
+								& std_logic_vector(to_signed(2**(IN_DATA_WIDTH-1)-1, IN_DATA_WIDTH))
+								& std_logic_vector(to_signed(2**(IN_DATA_WIDTH-1)-1, IN_DATA_WIDTH));
 	--shift phase by pi/2 (2^22, 1/4 circle)
 	phoff <= std_logic_vector(to_unsigned(2**22, 24));
 	wait for 1000ns;
@@ -150,7 +151,7 @@ begin
 	for ct in -2048 to 2047 loop
 		--ramp amplitude
 		for ct2 in 0 to 3 loop
-			wfm_check_re := to_signed(16*ct + 4*ct2, OUT_DATA_WIDTH);
+			wfm_check_re := to_signed(2**(OUT_DATA_WIDTH-IN_DATA_WIDTH)*(4*ct + ct2), OUT_DATA_WIDTH);
 			--Arbitrarly allow difference of 2 due to fixed point errors
 			slice_re := signed(wfm_out_re((ct2+1)*OUT_DATA_WIDTH-1 downto ct2*OUT_DATA_WIDTH));
 			slice_im := signed(wfm_out_im((ct2+1)*OUT_DATA_WIDTH-1 downto ct2*OUT_DATA_WIDTH));
@@ -167,7 +168,7 @@ begin
 		wait until rising_edge(clk);
 	end loop;
 	--shift phase by pi/2
-	wfm_check_im := to_signed(32762, OUT_DATA_WIDTH);
+	wfm_check_im := to_signed(OUT_DATA_SCALE, OUT_DATA_WIDTH);
 	wfm_check_re := (others => '0');
 	assert abs(wfm_check_re - signed(wfm_oserdes_re)) <= 2 report "real output wrong in BASEBAND_PH_SHIFT!";
 	assert abs(wfm_check_im - signed(wfm_oserdes_im)) <= 2 report "imag output wrong in BASEBAND_PH_SHIFT!";
@@ -183,8 +184,8 @@ begin
 	while testbench_state /= SSB_PH_SHIFT loop
 		for ct2 in 0 to 3 loop
 			ind := ind+1;
-			wfm_check_re := to_signed(integer(cos(2.0*MATH_PI*0.25*(1.0/64)*real(ind))*32762.0), OUT_DATA_WIDTH);
-			wfm_check_im := to_signed(integer(sin(2.0*MATH_PI*0.25*(1.0/64)*real(ind))*32762.0), OUT_DATA_WIDTH);
+			wfm_check_re := to_signed(integer(cos(2.0*MATH_PI*0.25*(1.0/64)*real(ind))*real(OUT_DATA_SCALE)), OUT_DATA_WIDTH);
+			wfm_check_im := to_signed(integer(sin(2.0*MATH_PI*0.25*(1.0/64)*real(ind))*real(OUT_DATA_SCALE)), OUT_DATA_WIDTH);
 			--Arbitrarly allow differences of 8 due to fixed point errors
 			slice_re := signed(wfm_out_re((ct2+1)*OUT_DATA_WIDTH-1 downto ct2*OUT_DATA_WIDTH));
 			slice_im := signed(wfm_out_im((ct2+1)*OUT_DATA_WIDTH-1 downto ct2*OUT_DATA_WIDTH));
@@ -205,8 +206,8 @@ begin
 		for ct2 in 0 to 3 loop
 			ind := ind+1;
 			--cos(2pi * freq * time); freq and time are in timestep units; freq is 1/4 because of 4 wide samples
-			wfm_check_re := to_signed(integer(cos(2.0*MATH_PI*0.25*(1.0/64)*real(ind) + MATH_PI/2.0)*32762.0), OUT_DATA_WIDTH);
-			wfm_check_im := to_signed(integer(sin(2.0*MATH_PI*0.25*(1.0/64)*real(ind) + MATH_PI/2.0)*32762.0), OUT_DATA_WIDTH);
+			wfm_check_re := to_signed(integer(cos(2.0*MATH_PI*0.25*(1.0/64)*real(ind) + MATH_PI/2.0)*real(OUT_DATA_SCALE)), OUT_DATA_WIDTH);
+			wfm_check_im := to_signed(integer(sin(2.0*MATH_PI*0.25*(1.0/64)*real(ind) + MATH_PI/2.0)*real(OUT_DATA_SCALE)), OUT_DATA_WIDTH);
 			--Arbitrarly allow difference of 8 due to fixed point errors
 			slice_re := signed(wfm_out_re((ct2+1)*OUT_DATA_WIDTH-1 downto ct2*OUT_DATA_WIDTH));
 			slice_im := signed(wfm_out_im((ct2+1)*OUT_DATA_WIDTH-1 downto ct2*OUT_DATA_WIDTH));
