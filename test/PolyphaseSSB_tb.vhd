@@ -32,9 +32,8 @@ signal wfm_out_vld : std_logic := '0';
 
 signal wfm_oserdes_re, wfm_oserdes_im : std_logic_vector(OUT_DATA_WIDTH-1 downto 0);
 
-
 --define different stages for testbench, corresponding to different SSB parameters
-type TESTBENCH_STATE_t	is (RESETTING, BASEBAND_RAMP_RE, BASEBAND_PH_SHIFT, SSB_ON, SSB_PH_SHIFT, DONE);
+type TESTBENCH_STATE_t	is (RESETTING, BASEBAND_RAMP_RE, BASEBAND_PH_SHIFT, SSB_ON, SSB_PH_SHIFT, MAX_RANGE, DONE);
 signal testbench_state : TESTBENCH_STATE_t;
 
 signal stop_the_clocks : boolean := false;
@@ -88,6 +87,11 @@ clk <= not clk after CLK_PERIOD/2 when not stop_the_clocks;
 clk_oserdes <= not clk_oserdes after CLK_OSERDES_PERIOD/2 when not stop_the_clocks;
 
 stimulus: process
+	constant MAX_INPUT : std_logic_vector(4*IN_DATA_WIDTH-1 downto 0) :=
+	std_logic_vector(to_signed(2**(IN_DATA_WIDTH-1)-1, IN_DATA_WIDTH))
+	& std_logic_vector(to_signed(2**(IN_DATA_WIDTH-1)-1, IN_DATA_WIDTH))
+	& std_logic_vector(to_signed(2**(IN_DATA_WIDTH-1)-1, IN_DATA_WIDTH))
+	& std_logic_vector(to_signed(2**(IN_DATA_WIDTH-1)-1, IN_DATA_WIDTH));
 begin
 
 	--Resetting
@@ -110,25 +114,29 @@ begin
 	end loop ;
 
 	testbench_state <= BASEBAND_PH_SHIFT;
-	--set amp. to ~max
-	wfm_in_re <= std_logic_vector(to_signed(2**(IN_DATA_WIDTH-1)-1, IN_DATA_WIDTH))
-								& std_logic_vector(to_signed(2**(IN_DATA_WIDTH-1)-1, IN_DATA_WIDTH))
-								& std_logic_vector(to_signed(2**(IN_DATA_WIDTH-1)-1, IN_DATA_WIDTH))
-								& std_logic_vector(to_signed(2**(IN_DATA_WIDTH-1)-1, IN_DATA_WIDTH));
+	--set I quadrature to max
+	wfm_in_re <= MAX_INPUT;
 	--shift phase by pi/2 (2^22, 1/4 circle)
 	phoff <= std_logic_vector(to_unsigned(2**22, 24));
-	wait for 1000ns;
+	wait for 1 us;
 
 	testbench_state <= SSB_ON;
 	phoff <= (others => '0');
 	--turn on SSB mod.,  (2^24, 1/100 clk)
 	phinc <= std_logic_vector(to_unsigned((2**24)/64, 24));
-	wait for 10000ns;
+	wait for 10 us;
 
 	testbench_state <= SSB_PH_SHIFT;
 	--shift phase by pi/2
 	phoff <= std_logic_vector(to_unsigned(2**22, 24));
-	wait for 10000ns;
+	wait for 10 us;
+
+	testbench_state <= MAX_RANGE;
+	--set I and Q quadratures to max
+	wfm_in_re <= MAX_INPUT;
+	wfm_in_im <= MAX_INPUT;
+
+	wait for 10 us;
 
 	testbench_state <= DONE;
 	wait for 100ns;
@@ -202,7 +210,7 @@ begin
 		ind := ind + 4;
 	end loop;
 
-	while testbench_state /= DONE loop
+	while testbench_state /= MAX_RANGE loop
 		for ct2 in 0 to 3 loop
 			ind := ind+1;
 			--cos(2pi * freq * time); freq and time are in timestep units; freq is 1/4 because of 4 wide samples
