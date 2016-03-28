@@ -36,7 +36,7 @@ architecture arch of SinCosLUT is
 		variable tmp : integer;
 	begin
 		for ct in 0 to LUT_SIZE-1 loop
-			tmp := integer( (real(2**OUTPUT_WIDTH) - 1.0) * sin(2.0*MATH_PI*real(ct)/real(LUT_SIZE)) );
+			tmp := integer( (real(2**(OUTPUT_WIDTH-1)) - 1.0) * sin(2.0*MATH_PI*real(ct)/real(LUT_SIZE)) );
 			lut(ct) := std_logic_vector(to_signed(tmp, OUTPUT_WIDTH));
 		end loop;
 		return lut;
@@ -61,16 +61,16 @@ begin
 	end process;
 
 	cos_port : process(clk)
-		variable cos_addr : natural range 0 to 2**PHASE_WIDTH-1;
+		variable cos_addr          : natural range 0 to 2**PHASE_WIDTH-1;
 		variable cos_quarter_shift : std_logic_vector(1 downto 0);
-		variable cos_addr_slv : std_logic_vector(PHASE_WIDTH-1 downto 0);
+		variable cos_addr_slv      : std_logic_vector(PHASE_WIDTH-1 downto 0);
 	begin
 		if rising_edge(clk) then
 			cos_quarter_shift := std_logic_vector(to_unsigned(1, 2) + unsigned(phase_tdata(phase_tdata'high downto phase_tdata'high-1)));
 			--Vivado can't infer & operands if done in line
 			cos_addr_slv := cos_quarter_shift & phase_tdata(phase_tdata'high-2 downto 0);
-			cos_addr := to_integer(unsigned(cos_addr_slv));
-			cos_tdata <= lut(cos_addr);
+			cos_addr     := to_integer(unsigned(cos_addr_slv));
+			cos_tdata    <= lut(cos_addr);
 		end if;
 	end process;
 

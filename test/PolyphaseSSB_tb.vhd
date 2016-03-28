@@ -171,8 +171,8 @@ begin
 	report "Finished checking BASEBAND_RAMP_RE";
 
 	wait until rising_edge(clk) and testbench_state = BASEBAND_PH_SHIFT;
-	--wait until DDS is valid (10 cycles) and multiplier pipeline delay (4 cycles)
-	for ct in 0 to 14 loop
+	--wait until DDS is valid (3 cycles) and multiplier pipeline delay (4 cycles)
+	for ct in 0 to 7 loop
 		wait until rising_edge(clk);
 	end loop;
 	--shift phase by pi/2
@@ -183,8 +183,8 @@ begin
 	report "Finished checking BASEBAND_PH_SHIFT";
 
 	wait until rising_edge(clk) and testbench_state = SSB_ON;
-	--wait until DDS is valid (10 cycles) and multiplier pipeline delay (4 cycles)
-	for ct in 0 to 14 loop
+	--wait until DDS is valid (3 cycles) and multiplier pipeline delay (4 cycles)
+	for ct in 0 to 7 loop
 		wait until rising_edge(clk);
 	end loop ;
 
@@ -204,8 +204,8 @@ begin
 	end loop;
 	report "Finished checking SSB_ON";
 
-	--wait until DDS is valid (10 cycles) and multiplier pipeline delay (4 cycles)
-	for ct in 0 to 14 loop
+	--wait until DDS is valid (3 cycles) and multiplier pipeline delay (4 cycles)
+	for ct in 0 to 7 loop
 		wait until rising_edge(clk);
 		ind := ind + 4;
 	end loop;
