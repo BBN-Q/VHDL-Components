@@ -153,7 +153,7 @@ check : process
 	variable slice_re : signed(OUT_DATA_WIDTH-1 downto 0);
 	variable slice_im : signed(OUT_DATA_WIDTH-1 downto 0);
 begin
-	--the while loop repeat until the condition is met for the first time (to sync. with wfm_out_xx).
+	--sync. with wfm_out_xx
 	wait until testbench_state = BASEBAND_RAMP_RE;
 	wait until rising_edge(clk) and wfm_out_re /= std_logic_vector(to_signed(0, wfm_out_re'length));
 	for ct in -2048 to 2047 loop
@@ -171,8 +171,9 @@ begin
 	report "Finished checking BASEBAND_RAMP_RE";
 
 	wait until rising_edge(clk) and testbench_state = BASEBAND_PH_SHIFT;
-	--wait until DDS is valid (3 cycles) and multiplier pipeline delay (4 cycles)
-	for ct in 0 to 7 loop
+	--wait until DDS is valid (5 cycles) and multiplier pipeline delay (4 cycles)
+	--already well into delay from above
+	for ct in 0 to 4 loop
 		wait until rising_edge(clk);
 	end loop;
 	--shift phase by pi/2
@@ -183,12 +184,12 @@ begin
 	report "Finished checking BASEBAND_PH_SHIFT";
 
 	wait until rising_edge(clk) and testbench_state = SSB_ON;
-	--wait until DDS is valid (3 cycles) and multiplier pipeline delay (4 cycles)
-	for ct in 0 to 7 loop
+	--wait until DDS is valid (5 cycles) and multiplier pipeline delay (4 cycles)
+	for ct in 0 to 9 loop
 		wait until rising_edge(clk);
 	end loop ;
 
-	ind := 7;
+	ind := 3;
 	while testbench_state /= SSB_PH_SHIFT loop
 		for ct2 in 0 to 3 loop
 			ind := ind+1;
@@ -204,8 +205,8 @@ begin
 	end loop;
 	report "Finished checking SSB_ON";
 
-	--wait until DDS is valid (3 cycles) and multiplier pipeline delay (4 cycles)
-	for ct in 0 to 7 loop
+	--wait until DDS is valid (5 cycles) and multiplier pipeline delay (4 cycles)
+	for ct in 0 to 9 loop
 		wait until rising_edge(clk);
 		ind := ind + 4;
 	end loop;

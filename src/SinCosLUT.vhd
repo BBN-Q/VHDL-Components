@@ -1,5 +1,5 @@
 -- Simple sin/cos LUT
--- Full size for minimal latency
+-- Register input/output to allow usual quarter-wave symmetry
 --
 -- Original author Colm Ryan
 -- Copyright 2015, Raytheon BBN Technologies
@@ -29,50 +29,93 @@ end entity;
 
 architecture arch of SinCosLUT is
 
-	constant LUT_SIZE : natural := 2**(PHASE_WIDTH);
-	type lut_array_t is array(LUT_SIZE-1 downto 0) of std_logic_vector(OUTPUT_WIDTH-1 downto 0);
-	function fill_lut return lut_array_t is
-		variable lut : lut_array_t;
+	--0 to pi/2 sin look up table
+	constant LUT_SIZE : natural := 2**(PHASE_WIDTH-2);
+	type lut_array is array(LUT_SIZE-1 downto 0) of signed(OUTPUT_WIDTH-1 downto 0);
+	function fill_lut return lut_array is
+		variable lut : lut_array;
 		variable tmp : integer;
+		constant SCALE : real := real(2**(OUTPUT_WIDTH-1)) - 1.0;
 	begin
 		for ct in 0 to LUT_SIZE-1 loop
-			tmp := integer( (real(2**(OUTPUT_WIDTH-1)) - 1.0) * sin(2.0*MATH_PI*real(ct)/real(LUT_SIZE)) );
-			lut(ct) := std_logic_vector(to_signed(tmp, OUTPUT_WIDTH));
+			tmp := integer( SCALE * sin((MATH_PI/2.0)*real(ct)/real(LUT_SIZE)) );
+			lut(ct) := to_signed(tmp, OUTPUT_WIDTH);
 		end loop;
 		return lut;
 	end function;
 
 	--seems this should be constant but then rom_style requires signal
-	signal lut : lut_array_t := fill_lut;
+	signal lut : lut_array := fill_lut;
 	attribute rom_style : string;
 	attribute rom_style of lut : signal is "block";
 
-	signal mem_data_sin, mem_data_cos : std_logic_vector(OUTPUT_WIDTH-1 downto 0);
+	signal sin_addr, cos_addr : natural range 0 to 2**(PHASE_WIDTH-2)-1;
+	subtype ADDR_SLICE is natural range PHASE_WIDTH-3 downto 0;
+
+	signal sin_tdata_reg, cos_tdata_reg : signed(OUTPUT_WIDTH-1 downto 0);
+
+	signal sign_bit : std_logic;
+	signal ones_complement_addr_bit : std_logic;
 
 begin
 
+	sign_bit <= phase_tdata(phase_tdata'high);
+	ones_complement_addr_bit <= phase_tdata(phase_tdata'high - 1);
+
 	sin_port : process(clk)
-		variable sin_addr : natural range 0 to 2**PHASE_WIDTH-1;
+		variable lut_data : signed(OUTPUT_WIDTH-1 downto 0);
+		variable delay_line : std_logic_vector(1 downto 0);
+		variable sign_bit_d : std_logic;
 	begin
 		if rising_edge(clk) then
-			sin_addr := to_integer(unsigned(phase_tdata));
-			sin_tdata <= lut(sin_addr);
+			--register addr with possible ones complement
+			if ones_complement_addr_bit = '0' then
+				sin_addr <= to_integer(unsigned(phase_tdata(ADDR_SLICE)));
+			else
+				sin_addr <= to_integer(unsigned(not phase_tdata(ADDR_SLICE)));
+			end if;
+
+			--Register output data from BRAM
+			sin_tdata_reg <= lut_data;
+			lut_data := lut(sin_addr);
+
+			--Register sign inversion
+			if sign_bit_d = '0' then
+				sin_tdata <= std_logic_vector(sin_tdata_reg);
+			else
+				sin_tdata <= std_logic_vector(-sin_tdata_reg);
+			end if;
+			sign_bit_d := delay_line(delay_line'high);
+			delay_line := delay_line(delay_line'high-1 downto 0) & sign_bit;
 		end if;
 	end process;
 
 	cos_port : process(clk)
-		variable cos_addr          : natural range 0 to 2**PHASE_WIDTH-1;
-		variable cos_quarter_shift : std_logic_vector(1 downto 0);
-		variable cos_addr_slv      : std_logic_vector(PHASE_WIDTH-1 downto 0);
+		variable lut_data : signed(OUTPUT_WIDTH-1 downto 0);
+		variable delay_line : std_logic_vector(1 downto 0);
+		variable sign_bit_d : std_logic;
 	begin
 		if rising_edge(clk) then
-			cos_quarter_shift := std_logic_vector(to_unsigned(1, 2) + unsigned(phase_tdata(phase_tdata'high downto phase_tdata'high-1)));
-			--Vivado can't infer & operands if done in line
-			cos_addr_slv := cos_quarter_shift & phase_tdata(phase_tdata'high-2 downto 0);
-			cos_addr     := to_integer(unsigned(cos_addr_slv));
-			cos_tdata    <= lut(cos_addr);
+			--register addr with possible ones complement
+			if ones_complement_addr_bit = '1' then
+				cos_addr <= to_integer(unsigned(phase_tdata(ADDR_SLICE)));
+			else
+				cos_addr <= to_integer(unsigned(not phase_tdata(ADDR_SLICE)));
+			end if;
+
+			--Register output data from BRAM
+			cos_tdata_reg <= lut_data;
+			lut_data := lut(cos_addr);
+
+			--Register sign inversion
+			if sign_bit_d = '0' then
+				cos_tdata <= std_logic_vector(cos_tdata_reg);
+			else
+				cos_tdata <= std_logic_vector(-cos_tdata_reg);
+			end if;
+			sign_bit_d := delay_line(delay_line'high);
+			delay_line := delay_line(delay_line'high-1 downto 0) & (sign_bit xor ones_complement_addr_bit);
 		end if;
 	end process;
-
 
 end architecture;
