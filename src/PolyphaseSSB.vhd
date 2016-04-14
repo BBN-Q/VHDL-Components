@@ -108,7 +108,7 @@ begin
 				A_WIDTH => IN_DATA_WIDTH,
 				B_WIDTH => OUT_DATA_WIDTH,
 				PROD_WIDTH => OUT_DATA_WIDTH,
-				BIT_SHIFT => 2
+				BIT_SHIFT => 1
 			)
 			port map (
 				clk => clk,

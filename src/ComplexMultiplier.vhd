@@ -12,6 +12,8 @@ entity ComplexMultiplier is
   A_WIDTH : natural := 16;
   B_WIDTH : natural := 16;
   PROD_WIDTH : natural := 16;
+  -- normally complex multiplication grows by one bit e.g. -1-1im * -1-1im  = 0 + 2im
+  -- divide output by BIT_SHIFT if overflow not a concern e.g. multplying by e^i\theta
   BIT_SHIFT : natural := 0
   );
   port (
@@ -40,13 +42,12 @@ architecture arch of ComplexMultiplier is
 signal a_reg_re, a_reg_im : signed(A_WIDTH-1 downto 0);
 signal b_reg_re, b_reg_im : signed(B_WIDTH-1 downto 0);
 
-constant SUM_WIDTH : natural := A_WIDTH+B_WIDTH;
-signal prod1, prod2, prod3, prod4 : signed(SUM_WIDTH-1 downto 0);
-signal sum_re, sum_im : signed(SUM_WIDTH downto 0);
+constant PROD_WIDTH_INT : natural := A_WIDTH + B_WIDTH;
+signal prod1, prod2, prod3, prod4 : signed(PROD_WIDTH_INT-1 downto 0);
+signal sum_re, sum_im : signed(PROD_WIDTH_INT-1 downto 0);
 
 --How to slice the output sum
-constant SLICE_HIGH : natural := SUM_WIDTH - BIT_SHIFT;
-constant SLICE_LOW : natural := SLICE_HIGH - PROD_WIDTH + 1;
+subtype OUTPUT_SLICE  is natural range (PROD_WIDTH_INT - 1 - BIT_SHIFT) downto (PROD_WIDTH_INT - BIT_SHIFT - PROD_WIDTH);
 
 begin
 
@@ -82,12 +83,13 @@ begin
         prod3 <= a_reg_im * b_reg_re;
         prod4 <= a_reg_im * b_reg_im;
 
-        sum_re <= resize(prod1, SUM_WIDTH+1) - resize(prod4, SUM_WIDTH+1);
-        sum_im <= resize(prod2, SUM_WIDTH+1) + resize(prod3, SUM_WIDTH+1);
+        --don't have to worry about overflow because signed multiplication already has extra bit
+        sum_re <= prod1 - prod4;
+        sum_im <= prod2 + prod3;
 
         --Slice output to truncate
-        prod_data_re <= std_logic_vector( sum_re(SLICE_HIGH downto SLICE_LOW) );
-        prod_data_im <= std_logic_vector( sum_im(SLICE_HIGH downto SLICE_LOW) );
+        prod_data_re <= std_logic_vector( sum_re(OUTPUT_SLICE) );
+        prod_data_im <= std_logic_vector( sum_im(OUTPUT_SLICE) );
 
   		end if;
   	end if;
