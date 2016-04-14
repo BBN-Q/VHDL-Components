@@ -38,7 +38,7 @@ architecture arch of PolyphaseSSB is
 signal dds_vld : std_logic_vector(3 downto 0) := (others => '0');
 signal prod_vld : std_logic_vector(3 downto 0) := (others => '0');
 
-type SINCOS_ARRAY_t is array(0 to 3) of std_logic_vector(OUT_DATA_WIDTH-1 downto 0);
+type SINCOS_ARRAY_t is array(0 to 3) of std_logic_vector(OUT_DATA_WIDTH+1 downto 0);
 type PHASE_ARRAY_t is array(0 to 3) of signed(ACCUMULATOR_WIDTH-1 downto 0);
 
 signal cos_array, sin_array : SINCOS_ARRAY_t := (others => (others => '0'));
@@ -88,7 +88,7 @@ begin
 		sincos_lut_inst : entity work.SinCosLUT
 			generic map (
 				PHASE_WIDTH => OUT_DATA_WIDTH,
-				OUTPUT_WIDTH => OUT_DATA_WIDTH
+				OUTPUT_WIDTH => OUT_DATA_WIDTH+2
 			)
 			port map (
 				clk => clk,
@@ -106,7 +106,7 @@ begin
 		myComplexMultiplier : entity work.ComplexMultiplier
 			generic map (
 				A_WIDTH => IN_DATA_WIDTH,
-				B_WIDTH => OUT_DATA_WIDTH,
+				B_WIDTH => OUT_DATA_WIDTH+2,
 				PROD_WIDTH => OUT_DATA_WIDTH,
 				BIT_SHIFT => 1
 			)

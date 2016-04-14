@@ -56,6 +56,8 @@ architecture arch of SinCosLUT is
 
 	signal sign_bit : std_logic;
 	signal ones_complement_addr_bit : std_logic;
+	signal sin_sign_bit_d : std_logic := '0';
+	signal cos_sign_bit, cos_sign_bit_d : std_logic := '0';
 
 begin
 
@@ -64,10 +66,9 @@ begin
 
 	sin_port : process(clk)
 		variable lut_data : signed(OUTPUT_WIDTH-1 downto 0);
-		variable delay_line : std_logic_vector(1 downto 0);
-		variable sign_bit_d : std_logic;
 	begin
 		if rising_edge(clk) then
+
 			--register addr with possible ones complement
 			if ones_complement_addr_bit = '0' then
 				sin_addr <= to_integer(unsigned(phase_tdata(ADDR_SLICE)));
@@ -79,21 +80,24 @@ begin
 			sin_tdata_reg <= lut_data;
 			lut_data := lut(sin_addr);
 
-			--Register sign inversion
-			if sign_bit_d = '0' then
-				sin_tdata <= std_logic_vector(sin_tdata_reg);
-			else
-				sin_tdata <= std_logic_vector(-sin_tdata_reg);
-			end if;
-			sign_bit_d := delay_line(delay_line'high);
-			delay_line := delay_line(delay_line'high-1 downto 0) & sign_bit;
 		end if;
 	end process;
 
+	sin_sign_bit_delay : entity work.DelayLine
+		generic map ( DELAY_TAPS => 3)
+		port map( clk => clk, rst => rst, data_in(0) => sign_bit, data_out(0) => sin_sign_bit_d);
+
+	-- should be sin_tdata <= std_logic_vector(sin_tdata_reg) when sin_sign_bit_d = '0' else std_logic_vector(-sin_tdata_reg);
+	-- instead sign inversion as one's complement
+	-- could be off by 1 bit but just make OUTPUT_WIDTH wider to compensate
+	-- TODO: investigate skewing phase and LUT by 1/2 LSB see
+	sin_tdata <= std_logic_vector(sin_tdata_reg) when sin_sign_bit_d = '0' else not std_logic_vector(sin_tdata_reg);
+
+	-- cos(\theta) = sin(\pi/2 - \theta) = sin(\pi/2 + \theta)
+	-- pi/2 shift just adds 01 to sign/address inversion bits 00 -> 01; 01 -> 10; 10 -> 11; 11 -> 11
+	-- cos address inversion = not sin address inversion and cos sign inversion = sin sign inversion xor sin address inversion
 	cos_port : process(clk)
 		variable lut_data : signed(OUTPUT_WIDTH-1 downto 0);
-		variable delay_line : std_logic_vector(1 downto 0);
-		variable sign_bit_d : std_logic;
 	begin
 		if rising_edge(clk) then
 			--register addr with possible ones complement
@@ -107,15 +111,14 @@ begin
 			cos_tdata_reg <= lut_data;
 			lut_data := lut(cos_addr);
 
-			--Register sign inversion
-			if sign_bit_d = '0' then
-				cos_tdata <= std_logic_vector(cos_tdata_reg);
-			else
-				cos_tdata <= std_logic_vector(-cos_tdata_reg);
-			end if;
-			sign_bit_d := delay_line(delay_line'high);
-			delay_line := delay_line(delay_line'high-1 downto 0) & (sign_bit xor ones_complement_addr_bit);
 		end if;
 	end process;
+
+	--sign inversion as ones complement
+	cos_sign_bit <= sign_bit xor ones_complement_addr_bit;
+	cos_sign_bit_delay : entity work.DelayLine
+		generic map ( DELAY_TAPS => 3)
+		port map( clk => clk, rst => rst, data_in(0) => cos_sign_bit, data_out(0) => cos_sign_bit_d);
+	cos_tdata <= std_logic_vector(cos_tdata_reg) when cos_sign_bit_d = '0' else not std_logic_vector(cos_tdata_reg);
 
 end architecture;

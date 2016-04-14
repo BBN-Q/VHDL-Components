@@ -171,9 +171,9 @@ begin
 	report "Finished checking BASEBAND_RAMP_RE";
 
 	wait until rising_edge(clk) and testbench_state = BASEBAND_PH_SHIFT;
-	--wait until DDS is valid (5 cycles) and multiplier pipeline delay (4 cycles)
+	--wait until DDS is valid (4 cycles) and multiplier pipeline delay (4 cycles)
 	--already well into delay from above
-	for ct in 0 to 4 loop
+	for ct in 0 to 3 loop
 		wait until rising_edge(clk);
 	end loop;
 	--shift phase by pi/2
@@ -184,8 +184,8 @@ begin
 	report "Finished checking BASEBAND_PH_SHIFT";
 
 	wait until rising_edge(clk) and testbench_state = SSB_ON;
-	--wait until DDS is valid (5 cycles) and multiplier pipeline delay (4 cycles)
-	for ct in 0 to 9 loop
+	--wait until DDS is valid (4 cycles) and multiplier pipeline delay (4 cycles)
+	for ct in 0 to 8 loop
 		wait until rising_edge(clk);
 	end loop ;
 
@@ -195,18 +195,18 @@ begin
 			ind := ind+1;
 			wfm_check_re := to_signed(integer(cos(2.0*MATH_PI*0.25*(1.0/64)*real(ind))*real(OUT_DATA_SCALE)), OUT_DATA_WIDTH);
 			wfm_check_im := to_signed(integer(sin(2.0*MATH_PI*0.25*(1.0/64)*real(ind))*real(OUT_DATA_SCALE)), OUT_DATA_WIDTH);
-			--Arbitrarly allow differences of 8 due to fixed point errors
+			--Arbitrarly allow differences of 4 due to fixed point errors
 			slice_re := signed(wfm_out_re((ct2+1)*OUT_DATA_WIDTH-1 downto ct2*OUT_DATA_WIDTH));
 			slice_im := signed(wfm_out_im((ct2+1)*OUT_DATA_WIDTH-1 downto ct2*OUT_DATA_WIDTH));
-			assert abs(wfm_check_re - slice_re) <= 8 report "real output wrong in SSB_ON! expected " & integer'image(to_integer(wfm_check_re)) & " but got " & integer'image(to_integer(slice_re)) ;
-			assert abs(wfm_check_im - slice_im) <= 8 report "imag output wrong in SSB_ON! expected " & integer'image(to_integer(wfm_check_im)) & " but got " & integer'image(to_integer(slice_im)) ;
+			assert abs(wfm_check_re - slice_re) <= 4 report "real output wrong in SSB_ON! expected " & integer'image(to_integer(wfm_check_re)) & " but got " & integer'image(to_integer(slice_re)) ;
+			assert abs(wfm_check_im - slice_im) <= 4 report "imag output wrong in SSB_ON! expected " & integer'image(to_integer(wfm_check_im)) & " but got " & integer'image(to_integer(slice_im)) ;
 		end loop;
 		wait until rising_edge(clk);
 	end loop;
 	report "Finished checking SSB_ON";
 
-	--wait until DDS is valid (5 cycles) and multiplier pipeline delay (4 cycles)
-	for ct in 0 to 9 loop
+	--wait until DDS is valid (4 cycles) and multiplier pipeline delay (4 cycles)
+	for ct in 0 to 8 loop
 		wait until rising_edge(clk);
 		ind := ind + 4;
 	end loop;
@@ -217,11 +217,11 @@ begin
 			--cos(2pi * freq * time); freq and time are in timestep units; freq is 1/4 because of 4 wide samples
 			wfm_check_re := to_signed(integer(cos(2.0*MATH_PI*0.25*(1.0/64)*real(ind) + MATH_PI/2.0)*real(OUT_DATA_SCALE)), OUT_DATA_WIDTH);
 			wfm_check_im := to_signed(integer(sin(2.0*MATH_PI*0.25*(1.0/64)*real(ind) + MATH_PI/2.0)*real(OUT_DATA_SCALE)), OUT_DATA_WIDTH);
-			--Arbitrarly allow difference of 8 due to fixed point errors
+			--Arbitrarly allow difference of 4 due to fixed point errors
 			slice_re := signed(wfm_out_re((ct2+1)*OUT_DATA_WIDTH-1 downto ct2*OUT_DATA_WIDTH));
 			slice_im := signed(wfm_out_im((ct2+1)*OUT_DATA_WIDTH-1 downto ct2*OUT_DATA_WIDTH));
-			assert abs(wfm_check_re - slice_re) <= 8 report "real output wrong in SSB_PH_SHIFT! expected " & integer'image(to_integer(wfm_check_re)) & " but got " & integer'image(to_integer(slice_re)) ;
-			assert abs(wfm_check_im - slice_im) <= 8 report "imag output wrong in SSB_PH_SHIFT! expected " & integer'image(to_integer(wfm_check_im)) & " but got " & integer'image(to_integer(slice_im)) ;
+			assert abs(wfm_check_re - slice_re) <= 4 report "real output wrong in SSB_PH_SHIFT! expected " & integer'image(to_integer(wfm_check_re)) & " but got " & integer'image(to_integer(slice_re)) ;
+			assert abs(wfm_check_im - slice_im) <= 4 report "imag output wrong in SSB_PH_SHIFT! expected " & integer'image(to_integer(wfm_check_im)) & " but got " & integer'image(to_integer(slice_im)) ;
 		end loop;
 		wait until rising_edge(clk);
 	end loop;
