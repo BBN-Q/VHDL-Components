@@ -61,27 +61,27 @@ architecture arch of {{module_name}} is
 	-- array of registers
 	type REG_ARRAY_t is array(natural range <>) of std_logic_vector({{S_AXI_DATA_WIDTH}}-1 downto 0) ;
 	signal regs : REG_ARRAY_t(0 to NUM_REGS-1) := (others => (others => '0'));
+	signal write_reg_addr : integer range 0 to NUM_REGS-1;
+	signal read_reg_addr  : integer range 0 to NUM_REGS-1;
 
 	-- internal AXI signals
-	signal axi_awready    : std_logic;
-	signal axi_wready     : std_logic;
-	signal axi_wdata      : std_logic_vector({{S_AXI_DATA_WIDTH}}-1 downto 0);
-	signal axi_wstrb      : std_logic_vector(({{S_AXI_DATA_WIDTH}}/8)-1 downto 0);
-	signal axi_bvalid     : std_logic;
-	signal axi_arready    : std_logic;
-	signal axi_rvalid     : std_logic;
-	signal write_reg_addr : integer range 0 to NUM_REGS;
-	signal read_reg_addr : integer range 0 to NUM_REGS;
+	signal axi_awready : std_logic;
+	signal axi_wready  : std_logic;
+	signal axi_wdata   : std_logic_vector({{S_AXI_DATA_WIDTH}}-1 downto 0);
+	signal axi_wstrb   : std_logic_vector(({{S_AXI_DATA_WIDTH}}/8)-1 downto 0);
+	signal axi_bvalid  : std_logic;
+	signal axi_arready : std_logic;
+	signal axi_rvalid  : std_logic;
 
 begin
 
 	-- wire control/status ports to internal registers
 	{%- for addr, reg in register_map.items() %}
 	{%- if reg.mode == 'write' %}
-	{{reg.label}} <= regs({{addr}})
+	{{reg.label}} <= regs({{addr}});
 	{%- endif %}
 	{%- if reg.mode == 'read' %}
-	regs({{addr}}) <= {{reg.label}}
+	regs({{addr}}) <= {{reg.label}};
 	{%- endif %}
 	{%- endfor %}
 
@@ -90,7 +90,6 @@ begin
 	s_axi_wready  <= axi_wready;
 	s_axi_bvalid  <= axi_bvalid;
 	s_axi_arready <= axi_arready;
-	s_axi_rresp   <= axi_rresp;
 	s_axi_rvalid  <= axi_rvalid;
 
 
@@ -133,7 +132,7 @@ begin
 	begin
 		if rising_edge(s_axi_aclk) then
 			-- decode register address
-			write_reg_addr <= to_integer(unsigned(s_axi_awaddr(s_axi_awaddr'high downto 2)))
+			write_reg_addr <= to_integer(unsigned(s_axi_awaddr(s_axi_awaddr'high downto 2)));
 			-- register data and byte enables
 			axi_wdata <= s_axi_wdata;
 			axi_wstrb <= s_axi_wstrb;
@@ -159,8 +158,7 @@ begin
 
 	-- read response
 	-- respond with data one clock later
-	s_axi_rresp <= "00" -- always OK
-	axi_rvalid <= '0';
+	s_axi_rresp <= "00"; -- always OK
 
 	read_response_pro : process (s_axi_aclk)
 	begin
@@ -173,10 +171,10 @@ begin
 				axi_rvalid <= '0';
 			else
 				-- acknowledge and latch address when no outstanding read responses
-				if axi_arready = '0' and s_axi_rvalid = '1' then
+				if axi_arready = '0' and axi_rvalid = '1' then
 					axi_arready <= '1';
 					-- latch register address
-					read_reg_addr <= to_integer(unsigned(s_axi_awaddr(s_axi_awaddr'high downto 2)))
+					read_reg_addr <= to_integer(unsigned(s_axi_awaddr(s_axi_awaddr'high downto 2)));
 				else
 					axi_arready <= '0';
 				end if;
