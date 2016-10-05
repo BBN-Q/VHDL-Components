@@ -7,8 +7,9 @@ from jinja2 import Template
 
 class Register(object):
 	"""A single register in a CSR"""
-	def __init__(self, label, mode, initial_value=0):
+	def __init__(self, addr, label, mode, initial_value=0):
 		super(Register, self).__init__()
+		self.addr = addr
 		self.label = label
 		self.mode = mode
 		self.initial_value = initial_value
@@ -25,12 +26,15 @@ use ieee.numeric_std.all;
 
 entity {{module_name}} is
 port (
-	-- CSR ports
-{%- for reg in register_map.values() %}
-	{%- if reg.mode == 'write' or reg.mode == 'read' %}
-	{{reg.label.ljust(PORT_JUSTIFICATION_WIDTH)}} : {{'in' if reg.mode=='read' else 'out'}} std_logic_vector(31 downto 0);
-	{%- endif %}
-{%- endfor %}
+	--CSR control ports
+	{%- for reg in registers|selectattr("mode", "equalto", "write") %}
+	{{reg.label.ljust(PORT_JUSTIFICATION_WIDTH)}} : out std_logic_vector(31 downto 0);
+	{%- endfor %}
+
+	-- CSR status ports
+	{%- for reg in registers|selectattr("mode", "equalto", "read") %}
+	{{reg.label.ljust(PORT_JUSTIFICATION_WIDTH)}} : in std_logic_vector(31 downto 0);
+	{%- endfor %}
 
 	-- slave AXI bus
 	s_axi_aclk    : in std_logic;
@@ -79,14 +83,17 @@ architecture arch of {{module_name}} is
 begin
 
 	-- wire control/status ports to internal registers
-	{%- for addr, reg in register_map.items() %}
-	{%- if reg.mode == 'write' %}
-	{{reg.label}} <= regs({{addr}});
-	{%- endif %}
-	{%- if reg.mode == 'read' %}
-	regs({{addr}}) <= {{reg.label}};
-	{%- endif %}
+	{%- for reg in registers|selectattr("mode", "equalto", "write") %}
+	{{reg.label}} <= regs({{reg.addr}});
 	{%- endfor %}
+	read_regs_register_pro: process (s_axi_aclk)
+	begin
+		if rising_edge(s_axi_aclk) then
+			{%- for reg in registers|selectattr("mode", "equalto", "read") %}
+			regs({{reg.addr}}) <= {{reg.label}};
+			{%- endfor %}
+		end if;
+	end process;
 
 	-- connect internal AXI signals
 	s_axi_awready <= axi_awready;
@@ -98,8 +105,8 @@ begin
 
 	-- simplistic response to write requests that only handles one write at a time
 	-- 1. hold awready and wready low
-	-- 2. wait until both awvalid and wvalid are asserted high-active
-	-- 3. assert awready and wready high; latch write address
+	-- 2. wait until both awvalid and wvalid are asserted
+	-- 3. assert awready and wready high; latch write address and data
 	-- 4. update control register
 	-- 5. always respond with OK
 	s_axi_bresp <= "00";
@@ -140,19 +147,20 @@ begin
 			axi_wdata <= s_axi_wdata;
 			axi_wstrb <= s_axi_wstrb;
 
-			-- under reset drive registers to initial values
 			if s_axi_aresetn = '0' then
-				{%- for addr, reg in register_map.items() %}
-				{%- if reg.mode == 'write' or reg.mode == 'internal' %}
-				regs({{addr}}) <= x"{{"{:08x}".format(reg.initial_value)}}";
-				{%- endif %}
+				{%- for reg in registers|rejectattr("mode", "equalto", "read") %}
+				regs({{reg.addr}}) <= x"{{"{:08x}".format(reg.initial_value)}}"; -- {{reg.label}}
 				{%- endfor %}
 
-			-- otherwise update the addressed register
 			else
 				for ct in 0 to {{REGISTER_BYTE_WIDTH-1}} loop
-					if axi_wready = '1' and axi_wstrb(ct) = '1' then
-						regs(write_reg_addr)(ct*8+7 downto ct*8) <= axi_wdata(ct*8+7 downto ct*8);
+					if axi_wstrb(ct) = '1' and axi_wready = '1' then
+						{%- for reg in registers|rejectattr("mode", "equalto", "read") %}
+						-- {{reg.label}}
+						if write_reg_addr = {{reg.addr}} then
+							regs({{reg.addr}})(ct*8+7 downto ct*8) <= axi_wdata(ct*8+7 downto ct*8);
+						end if;
+						{%- endfor %}
 					end if;
 				end loop;
 			end if;
@@ -201,7 +209,7 @@ end architecture;
 """
 )
 
-def write_axi_csr(filename, register_map, register_width=32):
+def write_axi_csr(filename, registers, register_width=32):
 
 	# check that register width is a power of 2
 	assert int(log2(register_width)) == log2(register_width), "register_width must be power of 2"
@@ -209,18 +217,18 @@ def write_axi_csr(filename, register_map, register_width=32):
 	log2_register_byte_width = int(log2(register_byte_width))
 
 	# figure out some constants
-	ceil_log2_num_regs = ceil( log2(max(register_map.keys()) ) )
+	ceil_log2_num_regs = ceil( log2(max(reg.addr for reg in registers) ) )
 	axi_addr_width = ceil_log2_num_regs + log2_register_byte_width
 	num_regs = 2**(ceil_log2_num_regs)
 
 	# maximum register width for some alignment nicieties
-	port_justification_width = max(len(reg.label) for reg in register_map.values())
+	port_justification_width = max(len(reg.label) for reg in registers)
 
 	with open("AXI_CSR.vhd", "w") as FID:
 		FID.write(
 			t.render(
 				module_name="AXI_CSR",
-				register_map=register_map,
+				registers=registers,
 				PORT_JUSTIFICATION_WIDTH=port_justification_width,
 				NUM_REGS=num_regs,
 				AXI_ADDR_WIDTH=axi_addr_width,
@@ -233,12 +241,12 @@ def write_axi_csr(filename, register_map, register_width=32):
 
 
 if __name__ == '__main__':
-	register_map = {
-					0 : Register("status1", "read"),
-					1 : Register("status2", "read"),
-					2 : Register("control1", "write", initial_value=0xffffffff),
-					3 : Register("control2", "write", initial_value=0x01234567),
-					5 : Register("scratch", "internal", initial_value=0x000dba11)
-				}
+	registers = [
+					Register(0, "status1", "read"),
+					Register(1, "status2", "read"),
+					Register(2, "control1", "write", initial_value=0xffffffff),
+					Register(3, "control2", "write", initial_value=0x01234567),
+					Register(5, "scratch", "internal", initial_value=0x000dba11)
+				]
 
-	write_axi_csr("AXI_CSR.vhd", register_map, 32)
+	write_axi_csr("AXI_CSR.vhd", registers, 32)
