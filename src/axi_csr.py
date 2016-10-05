@@ -24,7 +24,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity {{module_name}} is
+entity {{MODULE_NAME}} is
 port (
 	--CSR control ports
 	{%- for reg in registers|selectattr("mode", "equalto", "write") %}
@@ -61,7 +61,7 @@ port (
 	);
 end entity;
 
-architecture arch of {{module_name}} is
+architecture arch of {{MODULE_NAME}} is
 
 	-- register size (AXI address is byte wide)
 	constant NUM_REGS : natural := {{NUM_REGS}};
@@ -209,7 +209,7 @@ end architecture;
 """
 )
 
-def write_axi_csr(filename, registers, register_width=32):
+def write_axi_csr(filename, registers, module_name="AXI_CSR", register_width=32):
 
 	# check that register width is a power of 2
 	assert int(log2(register_width)) == log2(register_width), "register_width must be power of 2"
@@ -222,12 +222,12 @@ def write_axi_csr(filename, registers, register_width=32):
 	num_regs = 2**(ceil_log2_num_regs)
 
 	# maximum register width for some alignment nicieties
-	port_justification_width = max(len(reg.label) for reg in registers)
+	port_justification_width = max(len(reg.label) for reg in registers if reg.mode == "read" or reg.mode == "write" )
 
-	with open("AXI_CSR.vhd", "w") as FID:
+	with open(filename, "w") as FID:
 		FID.write(
 			t.render(
-				module_name="AXI_CSR",
+				MODULE_NAME=module_name,
 				registers=registers,
 				PORT_JUSTIFICATION_WIDTH=port_justification_width,
 				NUM_REGS=num_regs,
