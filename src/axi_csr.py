@@ -63,9 +63,8 @@ end entity;
 
 architecture arch of {{MODULE_NAME}} is
 
-	-- register size (AXI address is byte wide)
-	constant NUM_REGS : natural := {{NUM_REGS}};
 	-- array of registers
+	constant NUM_REGS : natural := {{NUM_REGS}};
 	type REG_ARRAY_t is array(natural range <>) of std_logic_vector({{REGISTER_WIDTH-1}} downto 0) ;
 	signal regs : REG_ARRAY_t(0 to NUM_REGS-1) := (others => (others => '0'));
 	signal write_reg_addr : integer range 0 to NUM_REGS-1;
@@ -217,7 +216,7 @@ def write_axi_csr(filename, registers, module_name="AXI_CSR", register_width=32)
 	log2_register_byte_width = int(log2(register_byte_width))
 
 	# figure out some constants
-	ceil_log2_num_regs = ceil( log2(max(reg.addr for reg in registers) ) )
+	ceil_log2_num_regs = ceil( log2(max(reg.addr for reg in registers) + 1 ) )
 	axi_addr_width = ceil_log2_num_regs + log2_register_byte_width
 	num_regs = 2**(ceil_log2_num_regs)
 
