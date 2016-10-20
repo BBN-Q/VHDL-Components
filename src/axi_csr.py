@@ -28,12 +28,12 @@ entity {{MODULE_NAME}} is
 port (
 	--CSR control ports
 	{%- for reg in registers|selectattr("mode", "equalto", "write") %}
-	{{reg.label.ljust(PORT_JUSTIFICATION_WIDTH)}} : out std_logic_vector(31 downto 0);
+	{{reg.label.ljust(JUSTIFICATION_WIDTH)}} : out std_logic_vector(31 downto 0);
 	{%- endfor %}
 
 	-- CSR status ports
 	{%- for reg in registers|selectattr("mode", "equalto", "read") %}
-	{{reg.label.ljust(PORT_JUSTIFICATION_WIDTH)}} : in std_logic_vector(31 downto 0);
+	{{reg.label.ljust(JUSTIFICATION_WIDTH)}} : in std_logic_vector(31 downto 0);
 	{%- endfor %}
 
 	-- slave AXI bus
@@ -84,7 +84,7 @@ begin
 
 	-- wire control/status ports to internal registers
 	{%- for reg in registers|selectattr("mode", "equalto", "write") %}
-	{{reg.label}} <= regs({{reg.addr}});
+	{{reg.label.ljust(JUSTIFICATION_WIDTH)}} <= regs({{reg.addr}});
 	{%- endfor %}
 	read_regs_register_pro: process (s_axi_aclk)
 	begin
@@ -222,14 +222,14 @@ def write_axi_csr(filename, registers, module_name="AXI_CSR", register_width=32)
 	num_regs = 2**(ceil_log2_num_regs)
 
 	# maximum register width for some alignment nicieties
-	port_justification_width = max(len(reg.label) for reg in registers if reg.mode == "read" or reg.mode == "write" )
+	justification_width = max(len(reg.label) for reg in registers if reg.mode == "read" or reg.mode == "write" )
 
 	with open(filename, "w") as FID:
 		FID.write(
 			t.render(
 				MODULE_NAME=module_name,
 				registers=registers,
-				PORT_JUSTIFICATION_WIDTH=port_justification_width,
+				JUSTIFICATION_WIDTH=justification_width,
 				NUM_REGS=num_regs,
 				AXI_ADDR_WIDTH=axi_addr_width,
 				REGISTER_WIDTH=register_width,
