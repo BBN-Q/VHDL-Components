@@ -34,8 +34,11 @@ type permutation_state_t is (LCG, XORSHIFT_STATE, ROTATION_STATE);
 signal perm_state : permutation_state_t := XORSHIFT_STATE;
 
 -- process signals
-signal tmp        : unsigned(127 downto 0);
 signal xorshift   : unsigned(31 downto 0);
+signal tmp1        : unsigned(63 downto 0);
+signal tmp2        : unsigned(63 downto 0);
+signal tmp3        : unsigned(63 downto 0);
+signal tmp4        : unsigned(63 downto 0);
 
 begin
 
@@ -56,28 +59,35 @@ begin
             case (perm_state) is
             when LCG =>
                 oldstate <= state;
-                tmp <= LCG_MULT * state;
-                valid <= '0';
+                -- break down computation of LCG_MULT * state into 3 pieces:
+                tmp1 <= LCG_MULT(63 downto 32) * state(31 downto 0);
+                tmp2 <= LCG_MULT(31 downto 0) * state(63 downto 32);
+                tmp3 <= LCG_MULT(31 downto 0) * state(31 downto 0);
 
+                valid <= '0';
                 perm_state <= XORSHIFT_STATE;
+
             when XORSHIFT_STATE =>
                 -- compute 32-bit xorshift
                 -- xorshift := (state ^ (state >> 18)) >> 27
                 xorshift <= oldstate(58 downto 27) xor (13x"0000" & oldstate(63 downto 45));
-
                 rotation := to_integer(oldstate(63 downto 59));
-                valid <= '0';
 
+                -- finish LCG_MULT * state calculation
+                tmp4 <= shift_left(tmp1, 32) + shift_left(tmp2, 32) + tmp3;
+
+                valid <= '0';
                 perm_state <= ROTATION_STATE;
 
             when ROTATION_STATE =>
                 rand <= std_logic_vector(rotate_right(xorshift, rotation));
                 valid <= '1';
 
-                -- finish LCG update (2 cycles since tmp was assigned)
-                state <= tmp(63 downto 0) + LCG_ADD;
+                -- finish LCG update
+                state <= tmp4 + LCG_ADD;
 
                 perm_state <= LCG;
+
             end case;
         end if;
     end if;
