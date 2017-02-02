@@ -26,15 +26,20 @@ architecture bench of PCG_XSH_RR_tb is
 
     type rand_array is array(0 to 7) of std_logic_vector(31 downto 0);
     signal rand_outs : rand_array := (others => (others => '0'));
+    -- expected outs computed using PCG.jl:
+    -- julia> include("PCG.jl")
+    -- julia> using PCG
+    -- julia> g = PCG(1234)
+    -- julia> [rand(g) for _ in 1:8]
     signal expected_outs : rand_array := (
-        0 => 32d"1234",
-        1 => 32d"1234",
-        2 => 32d"1234",
-        3 => 32d"1234",
-        4 => 32d"1234",
-        5 => 32d"1234",
-        6 => 32d"1234",
-        7 => 32d"1234"
+        0 => x"00000000",
+        1 => x"cb267ac2",
+        2 => x"035401a4",
+        3 => x"3db8c0ea",
+        4 => x"45b49a87",
+        5 => x"42f4a7aa",
+        6 => x"d6016e1c",
+        7 => x"3922cc67"
     );
 
 
