@@ -18,7 +18,7 @@ architecture bench of PCG_XSH_RR_tb is
     constant clock_period    : time := 4.0 ns;
     signal stop_the_clock    : boolean := false;
     signal checking_finished : boolean := false;
-    constant LATENCY : natural := 10;
+    constant LATENCY : natural := 3;
 
     signal seed     : std_logic_vector(63 downto 0) := std_logic_vector(to_unsigned(1234, 64));
     signal rand_out : std_logic_vector(31 downto 0);
@@ -88,7 +88,7 @@ begin
 
         wait until rising_edge(clk) and test_bench_state = TEST_RAND;
         -- PCG latency
-        for ct in 1 to (rand_outs'high + LATENCY) loop
+        for ct in 1 to (rand_outs'high * LATENCY) loop
             wait until rising_edge(clk);
         end loop;
 
