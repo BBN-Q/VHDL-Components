@@ -50,15 +50,14 @@ begin
     if rising_edge(clk) then
         if rst = '1' then
             state <= unsigned(seed);
-            rand <= (others => '0');
             valid <= '0';
             perm_state <= LCG;
-            rotation := 0;
         else
             case (perm_state) is
             when LCG =>
                 oldstate <= state;
                 tmp <= LCG_MULT * state;
+                valid <= '0';
 
                 perm_state <= XORSHIFT_STATE;
             when XORSHIFT_STATE =>
@@ -72,7 +71,7 @@ begin
                 perm_state <= ROTATION_STATE;
 
             when ROTATION_STATE =>
-                rand <= std_logic_vector(xorshift ror rotation);
+                rand <= std_logic_vector(rotate_right(xorshift, rotation));
                 valid <= '1';
 
                 -- finish LCG update (2 cycles since tmp was assigned)
