@@ -69,7 +69,7 @@ begin
             when XORSHIFT_STATE =>
                 -- compute 32-bit xorshift
                 -- xorshift := (state ^ (state >> 18)) >> 27
-                xorshift := state(59 downto 28) xor state(49 downto 18);
+                xorshift := state(58 downto 27) xor (13x"0000" & state(63 downto 45));
 
                 rotation := to_integer(state(63 downto 59));
                 valid <= '0';
