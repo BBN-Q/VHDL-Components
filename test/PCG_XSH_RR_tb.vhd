@@ -86,11 +86,7 @@ begin
     checking : process
     begin
 
-        wait until rising_edge(clk) and test_bench_state = TEST_RAND;
-        -- PCG latency
-        for ct in 1 to (rand_outs'high * LATENCY) loop
-            wait until rising_edge(clk);
-        end loop;
+        wait until rising_edge(clk) and test_bench_state = FINISHED;
 
         for ct in rand_outs'range loop
             -- compare against a known result
